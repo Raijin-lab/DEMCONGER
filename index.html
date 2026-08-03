@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demande d'Absence</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --border-color: #333;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        /* En-tête */
+        .header {
+            display: flex;
+            border: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .logo {
+            flex: 1;
+            font-size: 32px;
+            font-weight: bold;
+            padding: 15px;
+            border-right: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo .a2 { color: #555; }
+        .logo .cim { color: #d32f2f; }
+        .title {
+            flex: 2;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Date de demande */
+        .date-demande {
+            text-align: right;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .date-demande input {
+            border: none;
+            border-bottom: 1px dashed #000;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        /* Lignes du formulaire */
+        .row {
+            display: flex;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+        }
+        .row:last-of-type {
+            border-bottom: 1px solid var(--border-color);
+        }
+        .label {
+            background-color: #f9f9f9;
+            padding: 10px;
+            font-weight: bold;
+            border-right: 1px solid var(--border-color);
+            width: 150px;
+            display: flex;
+            align-items: center;
+        }
+        .content {
+            padding: 10px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        /* Forcer les majuscules pour le nom/prénom */
+        .uppercase-input {
+            text-transform: uppercase;
+        }
+
+        /* Checkboxes */
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        /* Inputs text/date */
+        input[type="text"], input[type="date"], input[type="time"], input[type="number"] {
+            border: 1px solid #ccc;
+            padding: 5px;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        /* Grille pour les dates et heures */
+        .grid-2x2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+        }
+        .grid-cell {
+            display: flex;
+            border-right: 1px solid var(--border-color);
+        }
+        .grid-cell:last-child {
+            border-right: none;
+        }
+        .grid-cell .label {
+            width: 120px;
+            border-right: 1px solid var(--border-color);
+            border-bottom: none;
+        }
+        
+        /* Signatures */
+        .signatures {
+            display: flex;
+            margin-top: 30px;
+            border: 1px solid var(--border-color);
+        }
+        .sig-box {
+            flex: 1;
+            min-height: 140px;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        .sig-box:last-child {
+            border-right: none;
+        }
+        .sig-title {
+            font-weight: bold;
+            padding: 5px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #f9f9f9;
+        }
+        .sig-title span {
+            display: block;
+            font-size: 12px;
+        }
+        .signature-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow: hidden;
+        }
+        .text-signature {
+            font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+            font-size: 32px;
+            color: #000044;
+            transform: rotate(-5deg); /* Donne un petit effet manuscrit incliné */
+            user-select: none;
+        }
+        .signature-content img {
+            max-width: 100px;
+            max-height: 80px;
+        }
+
+        /* Bouton d'action */
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+
+        /* Masquer le bouton à l'impression */
+        @media print {
+            body { background: none; padding: 0; }
+            .container { box-shadow: none; border: none; }
+            .actions { display: none; }
+            input { border: none !important; background: transparent; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="logo"><span class="a2">A2</span><span class="cim">CIM</span></div>
+        <div class="title">DEMANDE D'AUTORISATION D'ABSENCE</div>
+    </div>
+
+    <div class="date-demande">
+        Date de la demande : <input type="date" id="dateDemande">
+    </div>
+
+    <div class="row">
+        <div class="label">Type d'absence :</div>
+        <div class="content checkbox-group">
+            <label><input type="radio" name="type" value="conge_paye"> Congé Payé</label>
+            <label><input type="radio" name="type" value="conge_sans_solde"> Congé sans solde</label>
+            <label><input type="radio" name="type" value="recuperation"> Récupération</label>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="label">NOM</div>
+        <div class="content"><input type="text" value="BADIS" class="uppercase-input"></div>
+    </div>
+    <div class="row">
+        <div class="label">PRENOM</div>
+        <div class="content"><input type="text" value="ZOUHAIR" class="uppercase-input"></div>
+    </div>
+
+    <div class="row" style="padding: 0;">
+        <div class="grid-2x2">
+            <div class="grid-cell">
+                <div class="label">Date Départ</div>
+                <div class="content"><input type="date"></div>
+            </div>
+            <div class="grid-cell">
+                <div class="label">Heure Départ</div>
+                <div class="content"><input type="time"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding: 0;">
+        <div class="grid-2x2">
+            <div class="grid-cell">
+                <div class="label">Date Retour</div>
+                <div class="content"><input type="date"></div>
+            </div>
+            <div class="grid-cell">
+                <div class="label">Heure Retour</div>
+                <div class="content"><input type="time"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding: 0;">
+        <div class="grid-2x2">
+            <div class="grid-cell">
+                <div class="label">Nombre Jours Abs</div>
+                <div class="content"><input type="number" min="0" step="0.5"></div>
+            </div>
+            <div class="grid-cell">
+                <div class="label">Nombre Heures Abs</div>
+                <div class="content"><input type="number" min="0" step="1"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="signatures">
+        <div class="sig-box">
+            <div class="sig-title">SIGNATURE : <span>DEMANDEUR</span></div>
+            <div class="signature-content">
+                <!-- Option 1 : Signature générée en CSS (Police manuscrite) -->
+                <span class="text-signature">Z. Badis</span>
+                
+                <!-- Option 2 : Si tu as une image de ta signature, supprime la ligne ci-dessus et décommente celle ci-dessous -->
+                <!-- <img src="ma-signature.png" alt="Signature"> -->
+            </div>
+        </div>
+        <div class="sig-box">
+            <div class="sig-title"><br><span>RESPONSABLE</span></div>
+        </div>
+        <div class="sig-box">
+            <div class="sig-title"><br><span>DIRECTION</span></div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button onclick="window.print()">Imprimer / Sauvegarder en PDF</button>
+    </div>
+</div>
+
+<script>
+    // Remplir automatiquement la date du jour
+    document.getElementById('dateDemande').valueAsDate = new Date();
+
+    // Enregistrement du Service Worker pour la PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker enregistré avec succès:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('Échec de l\'enregistrement du ServiceWorker:', error);
+                });
+        });
+    }
+</script>
+
+</body>
+</html>
