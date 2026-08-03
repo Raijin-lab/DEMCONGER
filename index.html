@@ -9,17 +9,20 @@
         :root {
             --border-color: #333;
         }
+        * {
+            box-sizing: border-box; /* Évite que les marges internes ne cassent la largeur */
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             background-color: #f4f4f4;
         }
         .container {
             max-width: 800px;
             margin: auto;
             background: #fff;
-            padding: 30px;
+            padding: 20px;
             border: 1px solid #ccc;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
@@ -63,6 +66,7 @@
             border-bottom: 1px dashed #000;
             font-size: 16px;
             font-family: inherit;
+            max-width: 150px;
         }
 
         /* Lignes du formulaire */
@@ -88,7 +92,7 @@
             flex: 1;
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
         }
         
         /* Forcer les majuscules pour le nom/prénom */
@@ -99,7 +103,7 @@
         /* Checkboxes */
         .checkbox-group {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             flex-wrap: wrap;
         }
         .checkbox-group label {
@@ -112,7 +116,7 @@
         /* Inputs text/date */
         input[type="text"], input[type="date"], input[type="time"], input[type="number"] {
             border: 1px solid #ccc;
-            padding: 5px;
+            padding: 8px;
             font-size: 14px;
             width: 100%;
         }
@@ -144,7 +148,7 @@
         }
         .sig-box {
             flex: 1;
-            min-height: 140px;
+            min-height: 120px;
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
@@ -170,10 +174,12 @@
             padding: 10px;
             overflow: hidden;
         }
-        .signature-content img {
-            max-width: 120px;
-            max-height: 80px;
-            mix-blend-mode: multiply;
+        .text-signature {
+            font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+            font-size: 32px;
+            color: #000044;
+            transform: rotate(-5deg);
+            user-select: none;
         }
 
         /* Bouton d'action */
@@ -182,24 +188,91 @@
             margin-top: 20px;
         }
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 16px;
             background-color: #0056b3;
             color: white;
             border: none;
             cursor: pointer;
             border-radius: 4px;
-        }
-        button:hover {
-            background-color: #004494;
+            width: 100%;
+            max-width: 300px;
         }
 
-        /* Masquer le bouton à l'impression */
+        /* ========================================= */
+        /* ADAPTATION POUR LES TÉLÉPHONES (Mobiles) */
+        /* ========================================= */
+        @media screen and (max-width: 768px) {
+            .header {
+                flex-direction: column;
+            }
+            .logo, .title {
+                border-right: none;
+            }
+            .logo {
+                border-bottom: 2px solid var(--border-color);
+            }
+            
+            .row {
+                flex-direction: column; /* Les champs s'empilent */
+            }
+            .label {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px dashed #ccc; /* Séparation visuelle discrète */
+                padding: 8px 10px;
+            }
+            
+            .grid-2x2 {
+                grid-template-columns: 1fr; /* Désactive les colonnes côte à côte */
+            }
+            .grid-cell {
+                flex-direction: column;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .grid-cell:last-child {
+                border-bottom: none;
+            }
+            .grid-cell .label {
+                width: 100%;
+                border-right: none;
+            }
+            
+            .signatures {
+                flex-direction: column;
+            }
+            .sig-box {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                min-height: 100px;
+            }
+            .sig-box:last-child {
+                border-bottom: none;
+            }
+        }
+
+        /* ========================================= */
+        /* ADAPTATION POUR L'IMPRESSION ET LE PDF    */
+        /* ========================================= */
         @media print {
             body { background: none; padding: 0; }
-            .container { box-shadow: none; border: none; }
+            .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
             .actions { display: none; }
-            input { border: none !important; background: transparent; }
+            input { border: none !important; background: transparent; padding: 0; }
+            
+            /* Forcer le retour à la mise en page d'origine même depuis un mobile */
+            .header { flex-direction: row; }
+            .logo { border-right: 2px solid var(--border-color); border-bottom: none; }
+            .row { flex-direction: row; }
+            .label { width: 150px; border-right: 1px solid var(--border-color); border-bottom: none; }
+            .grid-2x2 { grid-template-columns: 1fr 1fr; }
+            .grid-cell { flex-direction: row; border-right: 1px solid var(--border-color); border-bottom: none; }
+            .grid-cell:last-child { border-right: none; }
+            .grid-cell .label { width: 120px; border-right: 1px solid var(--border-color); }
+            .signatures { flex-direction: row; }
+            .sig-box { border-right: 1px solid var(--border-color); border-bottom: none; }
+            .sig-box:last-child { border-right: none; }
         }
     </style>
 </head>
@@ -276,7 +349,7 @@
         <div class="sig-box">
             <div class="sig-title">SIGNATURE : <span>DEMANDEUR</span></div>
             <div class="signature-content">
-                <img src="121873.jpg" alt="Signature">
+                <span class="text-signature">Z. Badis</span>
             </div>
         </div>
         <div class="sig-box">
@@ -314,13 +387,12 @@
         const heuresJourneeNormale = 8;
         const heuresSamedi = 3;
 
-        // Boucle sur plusieurs jours (jours complets)
         let current = new Date(d1);
         while (current <= d2) {
             let jourSemaine = current.getDay();
 
             if (jourSemaine === 0) {
-                // Dimanche
+                // Dimanche = 0
             } else if (jourSemaine === 6) {
                 totalHeures += heuresSamedi;
                 totalJours += (heuresSamedi / heuresJourneeNormale); 
@@ -331,7 +403,6 @@
             current.setDate(current.getDate() + 1);
         }
 
-        // Écrasement du calcul si l'absence concerne une seule journée avec des heures précises
         if (dateDepart === dateRetour && heureDepart && heureRetour) {
             let hD = parseFloat(heureDepart.split(':')[0]) + (parseFloat(heureDepart.split(':')[1]) / 60);
             let hR = parseFloat(heureRetour.split(':')[0]) + (parseFloat(heureRetour.split(':')[1]) / 60);
@@ -342,18 +413,15 @@
                 totalHeures = 0;
                 totalJours = 0;
             } else if (jourSemaine === 6) {
-                // Calcul Samedi : 9h à 12h
                 let start = Math.max(hD, 9);
                 let end = Math.min(hR, 12);
                 totalHeures = Math.max(0, end - start);
                 totalJours = totalHeures / heuresJourneeNormale;
             } else {
-                // Calcul Semaine : Matin (8h-12h)
                 let mStart = Math.max(hD, 8);
                 let mEnd = Math.min(hR, 12);
                 let matinHeures = Math.max(0, mEnd - mStart);
                 
-                // Calcul Semaine : Après-midi (14h-18h)
                 let aStart = Math.max(hD, 14);
                 let aEnd = Math.min(hR, 18);
                 let amHeures = Math.max(0, aEnd - aStart);
