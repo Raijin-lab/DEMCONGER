@@ -1,11 +1,12 @@
-const CACHE_NAME = 'absence-cache-v2';
+const CACHE_NAME = 'absence-cache-v2'; // Changement de version
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './121873.jpg'
 ];
 
-// Installation du service worker et mise en cache
+// Installation du service worker
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -13,15 +14,42 @@ self.addEventListener('install', event => {
         return cache.addAll(urlsToCache);
       })
   );
+  self.skipWaiting();
 });
 
-// Récupération des requêtes (Offline mode)
+// Activation et nettoyage des anciens caches
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+// Stratégie : Network First (Réseau d'abord, Cache en secours)
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        // Retourne la version en cache si elle existe, sinon fait la requête réseau
-        return response || fetch(event.request);
+        // Si le réseau fonctionne, on met à jour le cache avec la nouvelle version
+        if (response && response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Si pas de réseau (hors-ligne), on cherche dans le cache
+        return caches.match(event.request);
       })
   );
 });
