@@ -10,7 +10,7 @@
             --border-color: #333;
         }
         * {
-            box-sizing: border-box; /* Évite que les marges internes ne cassent la largeur */
+            box-sizing: border-box;
         }
         body {
             font-family: Arial, sans-serif;
@@ -95,7 +95,6 @@
             gap: 15px;
         }
         
-        /* Forcer les majuscules pour le nom/prénom */
         .uppercase-input {
             text-transform: uppercase;
         }
@@ -199,9 +198,7 @@
             max-width: 300px;
         }
 
-        /* ========================================= */
-        /* ADAPTATION POUR LES TÉLÉPHONES (Mobiles) */
-        /* ========================================= */
+        /* ADAPTATION POUR LES TÉLÉPHONES */
         @media screen and (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -212,19 +209,17 @@
             .logo {
                 border-bottom: 2px solid var(--border-color);
             }
-            
             .row {
-                flex-direction: column; /* Les champs s'empilent */
+                flex-direction: column;
             }
             .label {
                 width: 100%;
                 border-right: none;
-                border-bottom: 1px dashed #ccc; /* Séparation visuelle discrète */
+                border-bottom: 1px dashed #ccc;
                 padding: 8px 10px;
             }
-            
             .grid-2x2 {
-                grid-template-columns: 1fr; /* Désactive les colonnes côte à côte */
+                grid-template-columns: 1fr;
             }
             .grid-cell {
                 flex-direction: column;
@@ -238,7 +233,6 @@
                 width: 100%;
                 border-right: none;
             }
-            
             .signatures {
                 flex-direction: column;
             }
@@ -252,16 +246,20 @@
             }
         }
 
-        /* ========================================= */
-        /* ADAPTATION POUR L'IMPRESSION ET LE PDF    */
-        /* ========================================= */
+        /* ADAPTATION POUR L'IMPRESSION ET LE PDF (Nettoyage des flèches/triangles) */
         @media print {
             body { background: none; padding: 0; }
             .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
             .actions { display: none; }
             input { border: none !important; background: transparent; padding: 0; }
             
-            /* Forcer le retour à la mise en page d'origine même depuis un mobile */
+            /* Masquer les icônes de calendrier et d'heure sur le PDF généré */
+            input[type="date"]::-webkit-calendar-picker-indicator,
+            input[type="time"]::-webkit-calendar-picker-indicator {
+                display: none !important;
+            }
+            
+            /* Forcer la mise en page d'origine horizontalement */
             .header { flex-direction: row; }
             .logo { border-right: 2px solid var(--border-color); border-bottom: none; }
             .row { flex-direction: row; }
