@@ -170,16 +170,10 @@
             padding: 10px;
             overflow: hidden;
         }
-        .text-signature {
-            font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
-            font-size: 32px;
-            color: #000044;
-            transform: rotate(-5deg); /* Donne un petit effet manuscrit incliné */
-            user-select: none;
-        }
         .signature-content img {
-            max-width: 100px;
+            max-width: 120px;
             max-height: 80px;
+            mix-blend-mode: multiply;
         }
 
         /* Bouton d'action */
@@ -243,11 +237,11 @@
         <div class="grid-2x2">
             <div class="grid-cell">
                 <div class="label">Date Départ</div>
-                <div class="content"><input type="date"></div>
+                <div class="content"><input type="date" id="dateDepart" onchange="calculerAbsence()"></div>
             </div>
             <div class="grid-cell">
                 <div class="label">Heure Départ</div>
-                <div class="content"><input type="time"></div>
+                <div class="content"><input type="time" id="heureDepart" onchange="calculerAbsence()"></div>
             </div>
         </div>
     </div>
@@ -256,11 +250,11 @@
         <div class="grid-2x2">
             <div class="grid-cell">
                 <div class="label">Date Retour</div>
-                <div class="content"><input type="date"></div>
+                <div class="content"><input type="date" id="dateRetour" onchange="calculerAbsence()"></div>
             </div>
             <div class="grid-cell">
                 <div class="label">Heure Retour</div>
-                <div class="content"><input type="time"></div>
+                <div class="content"><input type="time" id="heureRetour" onchange="calculerAbsence()"></div>
             </div>
         </div>
     </div>
@@ -269,11 +263,11 @@
         <div class="grid-2x2">
             <div class="grid-cell">
                 <div class="label">Nombre Jours Abs</div>
-                <div class="content"><input type="number" min="0" step="0.5"></div>
+                <div class="content"><input type="number" min="0" step="0.1" id="nbJours"></div>
             </div>
             <div class="grid-cell">
                 <div class="label">Nombre Heures Abs</div>
-                <div class="content"><input type="number" min="0" step="1"></div>
+                <div class="content"><input type="number" min="0" step="0.5" id="nbHeures"></div>
             </div>
         </div>
     </div>
@@ -282,11 +276,7 @@
         <div class="sig-box">
             <div class="sig-title">SIGNATURE : <span>DEMANDEUR</span></div>
             <div class="signature-content">
-                <!-- Option 1 : Signature générée en CSS (Police manuscrite) -->
-                <span class="text-signature">Z. Badis</span>
-                
-                <!-- Option 2 : Si tu as une image de ta signature, supprime la ligne ci-dessus et décommente celle ci-dessous -->
-                <!-- <img src="ma-signature.png" alt="Signature"> -->
+                <img src="121873.jpg" alt="Signature">
             </div>
         </div>
         <div class="sig-box">
@@ -303,19 +293,84 @@
 </div>
 
 <script>
-    // Remplir automatiquement la date du jour
     document.getElementById('dateDemande').valueAsDate = new Date();
 
-    // Enregistrement du Service Worker pour la PWA
+    function calculerAbsence() {
+        const dateDepart = document.getElementById('dateDepart').value;
+        const dateRetour = document.getElementById('dateRetour').value;
+        const heureDepart = document.getElementById('heureDepart').value;
+        const heureRetour = document.getElementById('heureRetour').value;
+
+        if (!dateDepart || !dateRetour) return;
+
+        let d1 = new Date(dateDepart);
+        let d2 = new Date(dateRetour);
+        
+        if (d1 > d2) return;
+
+        let totalJours = 0;
+        let totalHeures = 0;
+        
+        const heuresJourneeNormale = 8;
+        const heuresSamedi = 3;
+
+        // Boucle sur plusieurs jours (jours complets)
+        let current = new Date(d1);
+        while (current <= d2) {
+            let jourSemaine = current.getDay();
+
+            if (jourSemaine === 0) {
+                // Dimanche
+            } else if (jourSemaine === 6) {
+                totalHeures += heuresSamedi;
+                totalJours += (heuresSamedi / heuresJourneeNormale); 
+            } else {
+                totalHeures += heuresJourneeNormale;
+                totalJours += 1;
+            }
+            current.setDate(current.getDate() + 1);
+        }
+
+        // Écrasement du calcul si l'absence concerne une seule journée avec des heures précises
+        if (dateDepart === dateRetour && heureDepart && heureRetour) {
+            let hD = parseFloat(heureDepart.split(':')[0]) + (parseFloat(heureDepart.split(':')[1]) / 60);
+            let hR = parseFloat(heureRetour.split(':')[0]) + (parseFloat(heureRetour.split(':')[1]) / 60);
+            
+            let jourSemaine = d1.getDay();
+            
+            if (jourSemaine === 0) {
+                totalHeures = 0;
+                totalJours = 0;
+            } else if (jourSemaine === 6) {
+                // Calcul Samedi : 9h à 12h
+                let start = Math.max(hD, 9);
+                let end = Math.min(hR, 12);
+                totalHeures = Math.max(0, end - start);
+                totalJours = totalHeures / heuresJourneeNormale;
+            } else {
+                // Calcul Semaine : Matin (8h-12h)
+                let mStart = Math.max(hD, 8);
+                let mEnd = Math.min(hR, 12);
+                let matinHeures = Math.max(0, mEnd - mStart);
+                
+                // Calcul Semaine : Après-midi (14h-18h)
+                let aStart = Math.max(hD, 14);
+                let aEnd = Math.min(hR, 18);
+                let amHeures = Math.max(0, aEnd - aStart);
+                
+                totalHeures = matinHeures + amHeures;
+                totalJours = totalHeures / heuresJourneeNormale;
+            }
+        }
+
+        document.getElementById('nbJours').value = parseFloat(totalJours.toFixed(2));
+        document.getElementById('nbHeures').value = parseFloat(totalHeures.toFixed(2));
+    }
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
-                .then(registration => {
-                    console.log('ServiceWorker enregistré avec succès:', registration.scope);
-                })
-                .catch(error => {
-                    console.log('Échec de l\'enregistrement du ServiceWorker:', error);
-                });
+                .catch(error => console.log('Erreur SW:', error));
         });
     }
 </script>
