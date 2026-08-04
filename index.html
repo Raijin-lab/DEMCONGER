@@ -6,103 +6,90 @@
     <title>Demande d'Absence</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        :root {
-            --border-color: #333;
-        }
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
+        
         body {
             font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
-            padding: 10px;
-            background-color: #f4f4f4;
+            padding: 20px 10px;
         }
-        .container {
+
+        /* Conteneur principal simulant la feuille A4 */
+        .page-a4 {
             max-width: 800px;
-            margin: auto;
+            margin: 0 auto;
             background: #fff;
-            padding: 20px;
-            border: 1px solid #ccc;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        /* En-tête */
-        .header {
-            display: flex;
-            border: 2px solid var(--border-color);
+
+        /* Règle globale pour les tableaux (Mise en page identique au document papier) */
+        table {
+            width: 100%;
+            border-collapse: collapse;
             margin-bottom: 20px;
         }
+        
+        td, th {
+            border: 1px solid #000;
+            padding: 8px 12px;
+            vertical-align: middle;
+        }
+
+        /* --- En-tête (A2CIM) --- */
+        .header-table td {
+            border: 2px solid #000;
+            text-align: center;
+        }
+        .logo-cell {
+            width: 35%;
+        }
         .logo {
-            flex: 1;
-            font-size: 32px;
+            font-size: 42px;
             font-weight: bold;
-            padding: 15px;
-            border-right: 2px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin: 0;
         }
         .logo .a2 { color: #555; }
         .logo .cim { color: #d32f2f; }
-        .title {
-            flex: 2;
+        .title-doc {
             font-size: 22px;
             font-weight: bold;
-            text-align: center;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Date de demande */
-        .date-demande {
-            text-align: right;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .date-demande input {
-            border: none;
-            border-bottom: 1px dashed #000;
-            font-size: 16px;
-            font-family: inherit;
-            max-width: 150px;
         }
 
-        /* Lignes du formulaire */
-        .row {
-            display: flex;
-            border: 1px solid var(--border-color);
-            border-bottom: none;
-        }
-        .row:last-of-type {
-            border-bottom: 1px solid var(--border-color);
-        }
-        .label {
-            background-color: #f9f9f9;
-            padding: 10px;
+        /* --- Date de la demande --- */
+        .date-demande-container {
+            text-align: right;
+            margin-bottom: 15px;
+            font-size: 15px;
             font-weight: bold;
-            border-right: 1px solid var(--border-color);
-            width: 150px;
-            display: flex;
-            align-items: center;
         }
-        .content {
-            padding: 10px;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .date-demande-container input {
+            border: none;
+            border-bottom: 1px dashed #000;
+            font-size: 15px;
+            font-weight: bold;
+            font-family: inherit;
+            width: 130px;
+            text-align: center;
         }
-        
-        .uppercase-input {
-            text-transform: uppercase;
+
+        /* --- Corps du formulaire --- */
+        .form-table td {
+            height: 45px;
+            font-size: 15px;
+        }
+        .label-cell {
+            background-color: #f9f9f9;
+            font-weight: bold;
+            width: 25%;
         }
 
         /* Checkboxes */
         .checkbox-group {
             display: flex;
-            gap: 15px;
+            justify-content: flex-start;
+            gap: 25px;
             flex-wrap: wrap;
         }
         .checkbox-group label {
@@ -112,81 +99,46 @@
             cursor: pointer;
         }
 
-        /* Inputs text/date */
-        input[type="text"], input[type="date"], input[type="time"], input[type="number"] {
-            border: 1px solid #ccc;
-            padding: 8px;
+        /* Inputs généraux */
+        input[type="text"], input[type="date"], input[type="time"] {
+            width: 100%;
+            border: none;
+            outline: none;
             font-size: 14px;
-            width: 100%;
+            font-family: inherit;
+            background: transparent;
         }
-        
-        /* Grille pour les dates et heures */
-        .grid-2x2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            width: 100%;
+        .uppercase-input {
+            text-transform: uppercase;
         }
-        .grid-cell {
-            display: flex;
-            border-right: 1px solid var(--border-color);
-        }
-        .grid-cell:last-child {
-            border-right: none;
-        }
-        .grid-cell .label {
-            width: 120px;
-            border-right: 1px solid var(--border-color);
-            border-bottom: none;
-        }
-        
-        /* Signatures */
-        .signatures {
-            display: flex;
-            margin-top: 30px;
-            border: 1px solid var(--border-color);
-        }
-        .sig-box {
-            flex: 1;
-            min-height: 120px;
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-        }
-        .sig-box:last-child {
-            border-right: none;
-        }
-        .sig-title {
-            font-weight: bold;
-            padding: 5px;
-            border-bottom: 1px solid var(--border-color);
+
+        /* --- Tableau des signatures --- */
+        .sig-table th {
             background-color: #f9f9f9;
-        }
-        .sig-title span {
-            display: block;
+            text-align: left;
             font-size: 12px;
+            vertical-align: top;
+            height: 40px;
+            width: 33.33%;
         }
-        .signature-content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            overflow: hidden;
+        .sig-table td {
+            height: 100px; /* Espace pour signer */
+            text-align: center;
         }
         .text-signature {
             font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
             font-size: 32px;
             color: #000044;
             transform: rotate(-5deg);
-            user-select: none;
+            display: inline-block;
         }
 
-        /* Bouton d'action */
-        .actions {
+        /* --- Bouton --- */
+        .btn-container {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
         }
-        button {
+        .btn-print {
             padding: 12px 24px;
             font-size: 16px;
             background-color: #0056b3;
@@ -198,174 +150,106 @@
             max-width: 300px;
         }
 
-        /* ADAPTATION POUR LES TÉLÉPHONES */
-        @media screen and (max-width: 768px) {
-            .header {
-                flex-direction: column;
-            }
-            .logo, .title {
-                border-right: none;
-            }
-            .logo {
-                border-bottom: 2px solid var(--border-color);
-            }
-            .row {
-                flex-direction: column;
-            }
-            .label {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px dashed #ccc;
-                padding: 8px 10px;
-            }
-            .grid-2x2 {
-                grid-template-columns: 1fr;
-            }
-            .grid-cell {
-                flex-direction: column;
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-            }
-            .grid-cell:last-child {
-                border-bottom: none;
-            }
-            .grid-cell .label {
-                width: 100%;
-                border-right: none;
-            }
-            .signatures {
-                flex-direction: column;
-            }
-            .sig-box {
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-                min-height: 100px;
-            }
-            .sig-box:last-child {
-                border-bottom: none;
-            }
-        }
-
-        /* ADAPTATION POUR L'IMPRESSION ET LE PDF (Nettoyage des flèches/triangles) */
+        /* ========================================= */
+        /* ADAPTATION SPÉCIFIQUE IMPRESSION / PDF    */
+        /* ========================================= */
         @media print {
             body { background: none; padding: 0; }
-            .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
-            .actions { display: none; }
-            input { border: none !important; background: transparent; padding: 0; }
-            
-            /* Masquer les icônes de calendrier et d'heure sur le PDF généré */
-            input[type="date"]::-webkit-calendar-picker-indicator,
-            input[type="time"]::-webkit-calendar-picker-indicator {
-                display: none !important;
-            }
-            
-            /* Forcer la mise en page d'origine horizontalement */
-            .header { flex-direction: row; }
-            .logo { border-right: 2px solid var(--border-color); border-bottom: none; }
-            .row { flex-direction: row; }
-            .label { width: 150px; border-right: 1px solid var(--border-color); border-bottom: none; }
-            .grid-2x2 { grid-template-columns: 1fr 1fr; }
-            .grid-cell { flex-direction: row; border-right: 1px solid var(--border-color); border-bottom: none; }
-            .grid-cell:last-child { border-right: none; }
-            .grid-cell .label { width: 120px; border-right: 1px solid var(--border-color); }
-            .signatures { flex-direction: row; }
-            .sig-box { border-right: 1px solid var(--border-color); border-bottom: none; }
-            .sig-box:last-child { border-right: none; }
+            .page-a4 { box-shadow: none; padding: 0; max-width: 100%; width: 100%; margin: 0; }
+            .btn-container { display: none; }
+            /* Force les couleurs d'origine */
+            .logo .a2 { color: #555 !important; -webkit-print-color-adjust: exact; }
+            .logo .cim { color: #d32f2f !important; -webkit-print-color-adjust: exact; }
+            .label-cell, .sig-table th { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <div class="logo"><span class="a2">A2</span><span class="cim">CIM</span></div>
-        <div class="title">DEMANDE D'AUTORISATION D'ABSENCE</div>
-    </div>
+<div class="page-a4">
+    
+    <!-- En-tête -->
+    <table class="header-table">
+        <tr>
+            <td class="logo-cell">
+                <div class="logo"><span class="a2">A2</span><span class="cim">CIM</span></div>
+            </td>
+            <td class="title-doc">DEMANDE D'AUTORISATION D'ABSENCE</td>
+        </tr>
+    </table>
 
-    <div class="date-demande">
+    <!-- Date de demande -->
+    <div class="date-demande-container">
         Date de la demande : <input type="date" id="dateDemande">
     </div>
 
-    <div class="row">
-        <div class="label">Type d'absence :</div>
-        <div class="content checkbox-group">
-            <label><input type="radio" name="type" value="conge_paye"> Congé Payé</label>
-            <label><input type="radio" name="type" value="conge_sans_solde"> Congé sans solde</label>
-            <label><input type="radio" name="type" value="recuperation"> Récupération</label>
-        </div>
-    </div>
+    <!-- Formulaire principal -->
+    <table class="form-table">
+        <tr>
+            <td class="label-cell">Type d'absence :</td>
+            <td colspan="3">
+                <div class="checkbox-group">
+                    <label><input type="radio" name="type" value="conge_paye"> Congé Payé</label>
+                    <label><input type="radio" name="type" value="conge_sans_solde"> Congé sans solde</label>
+                    <label><input type="radio" name="type" value="recuperation"> Récupération</label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="label-cell">NOM</td>
+            <td colspan="3"><input type="text" value="BADIS" class="uppercase-input"></td>
+        </tr>
+        <tr>
+            <td class="label-cell">PRENOM</td>
+            <td colspan="3"><input type="text" value="ZOUHAIR" class="uppercase-input"></td>
+        </tr>
+        <tr>
+            <td class="label-cell">Date Départ</td>
+            <td style="width: 25%;"><input type="date" id="dateDepart" onchange="calculerAbsence()"></td>
+            <td class="label-cell" style="width: 25%;">Heure Départ</td>
+            <td style="width: 25%;"><input type="time" id="heureDepart" onchange="calculerAbsence()"></td>
+        </tr>
+        <tr>
+            <td class="label-cell">Date Retour</td>
+            <td><input type="date" id="dateRetour" onchange="calculerAbsence()"></td>
+            <td class="label-cell">Heure Retour</td>
+            <td><input type="time" id="heureRetour" onchange="calculerAbsence()"></td>
+        </tr>
+        <tr>
+            <td class="label-cell">Nombre Jours Abs</td>
+            <!-- J'utilise type="text" au lieu de number pour retirer nativement les flèches haut/bas du navigateur -->
+            <td><input type="text" id="nbJours" readonly></td>
+            <td class="label-cell">Nombre Heures Abs</td>
+            <td><input type="text" id="nbHeures" readonly></td>
+        </tr>
+    </table>
 
-    <div class="row">
-        <div class="label">NOM</div>
-        <div class="content"><input type="text" value="BADIS" class="uppercase-input"></div>
-    </div>
-    <div class="row">
-        <div class="label">PRENOM</div>
-        <div class="content"><input type="text" value="ZOUHAIR" class="uppercase-input"></div>
-    </div>
-
-    <div class="row" style="padding: 0;">
-        <div class="grid-2x2">
-            <div class="grid-cell">
-                <div class="label">Date Départ</div>
-                <div class="content"><input type="date" id="dateDepart" onchange="calculerAbsence()"></div>
-            </div>
-            <div class="grid-cell">
-                <div class="label">Heure Départ</div>
-                <div class="content"><input type="time" id="heureDepart" onchange="calculerAbsence()"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row" style="padding: 0;">
-        <div class="grid-2x2">
-            <div class="grid-cell">
-                <div class="label">Date Retour</div>
-                <div class="content"><input type="date" id="dateRetour" onchange="calculerAbsence()"></div>
-            </div>
-            <div class="grid-cell">
-                <div class="label">Heure Retour</div>
-                <div class="content"><input type="time" id="heureRetour" onchange="calculerAbsence()"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row" style="padding: 0;">
-        <div class="grid-2x2">
-            <div class="grid-cell">
-                <div class="label">Nombre Jours Abs</div>
-                <div class="content"><input type="number" min="0" step="0.1" id="nbJours"></div>
-            </div>
-            <div class="grid-cell">
-                <div class="label">Nombre Heures Abs</div>
-                <div class="content"><input type="number" min="0" step="0.5" id="nbHeures"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="signatures">
-        <div class="sig-box">
-            <div class="sig-title">SIGNATURE : <span>DEMANDEUR</span></div>
-            <div class="signature-content">
+    <!-- Signatures -->
+    <table class="sig-table">
+        <tr>
+            <th>SIGNATURE :<br>DEMANDEUR</th>
+            <th><br>RESPONSABLE</th>
+            <th><br>DIRECTION</th>
+        </tr>
+        <tr>
+            <td>
                 <span class="text-signature">Z. Badis</span>
-            </div>
-        </div>
-        <div class="sig-box">
-            <div class="sig-title"><br><span>RESPONSABLE</span></div>
-        </div>
-        <div class="sig-box">
-            <div class="sig-title"><br><span>DIRECTION</span></div>
-        </div>
-    </div>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
 
-    <div class="actions">
-        <button onclick="window.print()">Imprimer / Sauvegarder en PDF</button>
+    <div class="btn-container">
+        <button class="btn-print" onclick="window.print()">Imprimer / Enregistrer PDF</button>
     </div>
 </div>
 
 <script>
+    // Initialisation de la date de la demande
     document.getElementById('dateDemande').valueAsDate = new Date();
 
+    // Calcul automatique des heures et jours
     function calculerAbsence() {
         const dateDepart = document.getElementById('dateDepart').value;
         const dateRetour = document.getElementById('dateRetour').value;
@@ -381,7 +265,6 @@
 
         let totalJours = 0;
         let totalHeures = 0;
-        
         const heuresJourneeNormale = 8;
         const heuresSamedi = 3;
 
@@ -404,7 +287,6 @@
         if (dateDepart === dateRetour && heureDepart && heureRetour) {
             let hD = parseFloat(heureDepart.split(':')[0]) + (parseFloat(heureDepart.split(':')[1]) / 60);
             let hR = parseFloat(heureRetour.split(':')[0]) + (parseFloat(heureRetour.split(':')[1]) / 60);
-            
             let jourSemaine = d1.getDay();
             
             if (jourSemaine === 0) {
@@ -429,10 +311,42 @@
             }
         }
 
-        document.getElementById('nbJours').value = parseFloat(totalJours.toFixed(2));
-        document.getElementById('nbHeures').value = parseFloat(totalHeures.toFixed(2));
+        // Affiche le résultat en remplaçant le point par une virgule pour un style plus propre
+        document.getElementById('nbJours').value = totalJours.toFixed(2).replace('.', ',');
+        document.getElementById('nbHeures').value = totalHeures.toFixed(2).replace('.', ',');
     }
 
+    // =========================================================================
+    // L'ASTUCE ANTI-TRIANGLES : Transformation des champs avant l'impression
+    // =========================================================================
+    window.addEventListener('beforeprint', () => {
+        document.querySelectorAll('input[type="date"], input[type="time"]').forEach(el => {
+            el.setAttribute('data-type', el.type);     // On sauvegarde le type original
+            el.setAttribute('data-val', el.value);     // On sauvegarde la valeur originale
+            
+            if (el.type === 'date' && el.value) {
+                // Formate la date au format FR (JJ/MM/AAAA) pour le PDF
+                const parts = el.value.split('-');
+                if (parts.length === 3) {
+                    el.type = 'text'; 
+                    el.value = `${parts[2]}/${parts[1]}/${parts[0]}`; 
+                }
+            } else {
+                // Change juste le type pour faire disparaître l'horloge
+                el.type = 'text';
+            }
+        });
+    });
+
+    // On restaure les champs dans leur état normal après la génération du PDF
+    window.addEventListener('afterprint', () => {
+        document.querySelectorAll('input[data-type]').forEach(el => {
+            el.type = el.getAttribute('data-type');
+            el.value = el.getAttribute('data-val'); 
+        });
+    });
+
+    // Enregistrement PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
