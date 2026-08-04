@@ -1,4 +1,4 @@
-const CACHE_NAME = 'absence-cache-v5'; // Changement de version
+const CACHE_NAME = 'absence-cache-v6'; // Changement de version
 const urlsToCache = [
   './',
   './index.html',
