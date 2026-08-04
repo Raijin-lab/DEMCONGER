@@ -236,7 +236,6 @@
         const heureDepart = document.getElementById('heureDepart').value;
         const heureRetour = document.getElementById('heureRetour').value;
 
-        // Si l'un des champs est vide, on nettoie
         if (!dateDepart || !dateRetour || !heureDepart || !heureRetour) {
             document.getElementById('nbJours').value = '';
             document.getElementById('nbHeures').value = '';
@@ -246,17 +245,16 @@
         let startDt = new Date(`${dateDepart}T${heureDepart}:00`);
         let endDt = new Date(`${dateRetour}T${heureRetour}:00`);
         
-        // Sécurité : Si retour avant départ
         if (startDt >= endDt) {
             document.getElementById('nbJours').value = '';
             document.getElementById('nbHeures').value = '';
             return;
         }
 
+        let totalJours = 0;
         let totalHeures = 0;
         const heuresParJour = 8; 
 
-        // Boucle jour par jour pour accumuler les heures réelles
         let currentDay = new Date(dateDepart);
         currentDay.setHours(0, 0, 0, 0);
         
@@ -265,17 +263,21 @@
 
         while (currentDay <= endDay) {
             let jourSemaine = currentDay.getDay(); 
-
-            // Définition des plages horaires
+            
             let intervals = [];
+            let workHoursForDay = 8;
+
             if (jourSemaine >= 1 && jourSemaine <= 5) {
-                intervals.push([8, 12]);   // Matin
-                intervals.push([14, 18]);  // Après-midi
+                intervals.push([8, 12]);   
+                intervals.push([14, 18]);  
+                workHoursForDay = 8;
             } else if (jourSemaine === 6) {
-                intervals.push([9, 12]);   // Samedi
+                intervals.push([9, 12]);   
+                workHoursForDay = 3; 
             }
 
-            // Calcul de l'intersection entre l'absence et le travail effectif
+            let missedHours = 0;
+
             for (let i = 0; i < intervals.length; i++) {
                 let intStart = new Date(currentDay);
                 intStart.setHours(intervals[i][0], 0, 0, 0);
@@ -287,30 +289,35 @@
                 let calcEnd = endDt < intEnd ? endDt : intEnd;
 
                 if (calcStart < calcEnd) {
-                    let diffMs = calcEnd - calcStart;
-                    totalHeures += diffMs / (1000 * 60 * 60);
+                    missedHours += (calcEnd - calcStart) / (1000 * 60 * 60);
                 }
+            }
+            
+            missedHours = Math.round(missedHours * 100) / 100;
+
+            if (jourSemaine >= 1 && jourSemaine <= 5) {
+                if (missedHours >= workHoursForDay) {
+                    totalJours += 1; // Journée pleine en semaine = 1 jour
+                } else {
+                    totalHeures += missedHours; // Absence partielle en semaine
+                }
+            } else if (jourSemaine === 6) {
+                totalHeures += missedHours; // Le samedi s'ajoute toujours aux heures (3h max par samedi)
             }
             
             currentDay.setDate(currentDay.getDate() + 1);
         }
 
-        // --- NOUVELLE LOGIQUE RH (Jours entiers + Heures) ---
-        let joursPleins = Math.floor(totalHeures / heuresParJour); // Ex: 11h / 8 = 1 jour
-        let heuresRestantes = totalHeures % heuresParJour;         // Ex: 11h % 8 = 3 heures
-
-        // Règle : Si absence >= 2 jours, on ignore les heures
-        if (joursPleins >= 2) {
-            document.getElementById('nbJours').value = joursPleins;
-            document.getElementById('nbHeures').value = ''; 
-        } else {
-            // Affichage propre : on ne met rien si c'est égal à 0
-            document.getElementById('nbJours').value = (joursPleins > 0) ? joursPleins : '';
-            document.getElementById('nbHeures').value = (heuresRestantes > 0) ? heuresRestantes : '';
+        // Conversion des heures accumulées en jours si ça dépasse ou égale 8h
+        if (totalHeures >= heuresParJour) {
+            totalJours += Math.floor(totalHeures / heuresParJour);
+            totalHeures = totalHeures % heuresParJour;
         }
+
+        document.getElementById('nbJours').value = (totalJours > 0) ? totalJours : '';
+        document.getElementById('nbHeures').value = (totalHeures > 0) ? totalHeures.toString().replace('.', ',') : '';
     }
 
-    // ASTUCE ANTI-TRIANGLES
     window.addEventListener('beforeprint', () => {
         document.querySelectorAll('input[type="date"], input[type="time"]').forEach(el => {
             el.setAttribute('data-type', el.type);
