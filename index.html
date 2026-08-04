@@ -123,6 +123,7 @@
             color: #000044;
             transform: rotate(-5deg);
             display: inline-block;
+            transition: all 0.3s ease;
         }
 
         .btn-container {
@@ -181,11 +182,13 @@
         </tr>
         <tr>
             <td class="label-cell">NOM</td>
-            <td colspan="3"><input type="text" value="BADIS" class="uppercase-input"></td>
+            <!-- Ajout de l'événement oninput pour écouter la saisie -->
+            <td colspan="3"><input type="text" id="nomInput" value="BADIS" class="uppercase-input" oninput="updateSignature()"></td>
         </tr>
         <tr>
             <td class="label-cell">PRENOM</td>
-            <td colspan="3"><input type="text" value="ZOUHAIR" class="uppercase-input"></td>
+            <!-- Ajout de l'événement oninput pour écouter la saisie -->
+            <td colspan="3"><input type="text" id="prenomInput" value="ZOUHAIR" class="uppercase-input" oninput="updateSignature()"></td>
         </tr>
         <tr>
             <td class="label-cell">Date Départ</td>
@@ -215,7 +218,8 @@
         </tr>
         <tr>
             <td>
-                <span class="text-signature">Z. Badis</span>
+                <!-- Ajout de l'ID pour pouvoir la modifier dynamiquement -->
+                <span class="text-signature" id="signatureText">Z. Badis</span>
             </td>
             <td></td>
             <td></td>
@@ -230,6 +234,25 @@
 <script>
     document.getElementById('dateDemande').valueAsDate = new Date();
 
+    // --- NOUVELLE FONCTION : Mise à jour dynamique de la signature ---
+    function updateSignature() {
+        const nom = document.getElementById('nomInput').value.trim();
+        const prenom = document.getElementById('prenomInput').value.trim();
+        
+        let signatureStr = '';
+        
+        if (prenom.length > 0) {
+            signatureStr += prenom.charAt(0).toUpperCase() + '. ';
+        }
+        
+        if (nom.length > 0) {
+            signatureStr += nom.charAt(0).toUpperCase() + nom.slice(1).toLowerCase();
+        }
+        
+        document.getElementById('signatureText').textContent = signatureStr;
+    }
+
+    // Calcul des jours et heures (version finale avec le samedi à 3h naturel)
     function calculerAbsence() {
         const dateDepart = document.getElementById('dateDepart').value;
         const dateRetour = document.getElementById('dateRetour').value;
@@ -297,18 +320,17 @@
 
             if (jourSemaine >= 1 && jourSemaine <= 5) {
                 if (missedHours >= workHoursForDay) {
-                    totalJours += 1; // Journée pleine en semaine = 1 jour
+                    totalJours += 1; 
                 } else {
-                    totalHeures += missedHours; // Absence partielle en semaine
+                    totalHeures += missedHours; 
                 }
             } else if (jourSemaine === 6) {
-                totalHeures += missedHours; // Le samedi s'ajoute toujours aux heures (3h max par samedi)
+                totalHeures += missedHours; 
             }
             
             currentDay.setDate(currentDay.getDate() + 1);
         }
 
-        // Conversion des heures accumulées en jours si ça dépasse ou égale 8h
         if (totalHeures >= heuresParJour) {
             totalJours += Math.floor(totalHeures / heuresParJour);
             totalHeures = totalHeures % heuresParJour;
@@ -318,6 +340,7 @@
         document.getElementById('nbHeures').value = (totalHeures > 0) ? totalHeures.toString().replace('.', ',') : '';
     }
 
+    // Gestion de l'affichage PDF
     window.addEventListener('beforeprint', () => {
         document.querySelectorAll('input[type="date"], input[type="time"]').forEach(el => {
             el.setAttribute('data-type', el.type);
