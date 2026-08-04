@@ -15,7 +15,6 @@
             padding: 20px 10px;
         }
 
-        /* Conteneur principal simulant la feuille A4 */
         .page-a4 {
             max-width: 800px;
             margin: 0 auto;
@@ -24,7 +23,6 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        /* Règle globale pour les tableaux (Mise en page identique au document papier) */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -37,7 +35,6 @@
             vertical-align: middle;
         }
 
-        /* --- En-tête (A2CIM) --- */
         .header-table td {
             border: 2px solid #000;
             text-align: center;
@@ -57,7 +54,6 @@
             font-weight: bold;
         }
 
-        /* --- Date de la demande --- */
         .date-demande-container {
             text-align: right;
             margin-bottom: 15px;
@@ -74,7 +70,6 @@
             text-align: center;
         }
 
-        /* --- Corps du formulaire --- */
         .form-table td {
             height: 45px;
             font-size: 15px;
@@ -85,7 +80,6 @@
             width: 25%;
         }
 
-        /* Checkboxes */
         .checkbox-group {
             display: flex;
             justify-content: flex-start;
@@ -99,7 +93,6 @@
             cursor: pointer;
         }
 
-        /* Inputs généraux */
         input[type="text"], input[type="date"], input[type="time"] {
             width: 100%;
             border: none;
@@ -112,7 +105,6 @@
             text-transform: uppercase;
         }
 
-        /* --- Tableau des signatures --- */
         .sig-table th {
             background-color: #f9f9f9;
             text-align: left;
@@ -122,7 +114,7 @@
             width: 33.33%;
         }
         .sig-table td {
-            height: 100px; /* Espace pour signer */
+            height: 100px;
             text-align: center;
         }
         .text-signature {
@@ -133,7 +125,6 @@
             display: inline-block;
         }
 
-        /* --- Bouton --- */
         .btn-container {
             text-align: center;
             margin-top: 30px;
@@ -150,14 +141,10 @@
             max-width: 300px;
         }
 
-        /* ========================================= */
-        /* ADAPTATION SPÉCIFIQUE IMPRESSION / PDF    */
-        /* ========================================= */
         @media print {
             body { background: none; padding: 0; }
             .page-a4 { box-shadow: none; padding: 0; max-width: 100%; width: 100%; margin: 0; }
             .btn-container { display: none; }
-            /* Force les couleurs d'origine */
             .logo .a2 { color: #555 !important; -webkit-print-color-adjust: exact; }
             .logo .cim { color: #d32f2f !important; -webkit-print-color-adjust: exact; }
             .label-cell, .sig-table th { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
@@ -168,7 +155,6 @@
 
 <div class="page-a4">
     
-    <!-- En-tête -->
     <table class="header-table">
         <tr>
             <td class="logo-cell">
@@ -178,12 +164,10 @@
         </tr>
     </table>
 
-    <!-- Date de demande -->
     <div class="date-demande-container">
         Date de la demande : <input type="date" id="dateDemande">
     </div>
 
-    <!-- Formulaire principal -->
     <table class="form-table">
         <tr>
             <td class="label-cell">Type d'absence :</td>
@@ -217,14 +201,12 @@
         </tr>
         <tr>
             <td class="label-cell">Nombre Jours Abs</td>
-            <!-- J'utilise type="text" au lieu de number pour retirer nativement les flèches haut/bas du navigateur -->
             <td><input type="text" id="nbJours" readonly></td>
             <td class="label-cell">Nombre Heures Abs</td>
             <td><input type="text" id="nbHeures" readonly></td>
         </tr>
     </table>
 
-    <!-- Signatures -->
     <table class="sig-table">
         <tr>
             <th>SIGNATURE :<br>DEMANDEUR</th>
@@ -246,99 +228,106 @@
 </div>
 
 <script>
-    // Initialisation de la date de la demande
     document.getElementById('dateDemande').valueAsDate = new Date();
 
-    // Calcul automatique des heures et jours
     function calculerAbsence() {
         const dateDepart = document.getElementById('dateDepart').value;
         const dateRetour = document.getElementById('dateRetour').value;
         const heureDepart = document.getElementById('heureDepart').value;
         const heureRetour = document.getElementById('heureRetour').value;
 
-        if (!dateDepart || !dateRetour) return;
+        // Si l'un des champs est vide, on nettoie
+        if (!dateDepart || !dateRetour || !heureDepart || !heureRetour) {
+            document.getElementById('nbJours').value = '';
+            document.getElementById('nbHeures').value = '';
+            return;
+        }
 
-        let d1 = new Date(dateDepart);
-        let d2 = new Date(dateRetour);
+        let startDt = new Date(`${dateDepart}T${heureDepart}:00`);
+        let endDt = new Date(`${dateRetour}T${heureRetour}:00`);
         
-        if (d1 > d2) return;
+        // Sécurité : Si retour avant départ
+        if (startDt >= endDt) {
+            document.getElementById('nbJours').value = '';
+            document.getElementById('nbHeures').value = '';
+            return;
+        }
 
-        let totalJours = 0;
         let totalHeures = 0;
-        const heuresJourneeNormale = 8;
-        const heuresSamedi = 3;
+        const heuresParJour = 8; 
 
-        let current = new Date(d1);
-        while (current <= d2) {
-            let jourSemaine = current.getDay();
+        // Boucle jour par jour pour accumuler les heures réelles
+        let currentDay = new Date(dateDepart);
+        currentDay.setHours(0, 0, 0, 0);
+        
+        let endDay = new Date(dateRetour);
+        endDay.setHours(0, 0, 0, 0);
 
-            if (jourSemaine === 0) {
-                // Dimanche = 0
+        while (currentDay <= endDay) {
+            let jourSemaine = currentDay.getDay(); 
+
+            // Définition des plages horaires
+            let intervals = [];
+            if (jourSemaine >= 1 && jourSemaine <= 5) {
+                intervals.push([8, 12]);   // Matin
+                intervals.push([14, 18]);  // Après-midi
             } else if (jourSemaine === 6) {
-                totalHeures += heuresSamedi;
-                totalJours += (heuresSamedi / heuresJourneeNormale); 
-            } else {
-                totalHeures += heuresJourneeNormale;
-                totalJours += 1;
+                intervals.push([9, 12]);   // Samedi
             }
-            current.setDate(current.getDate() + 1);
-        }
 
-        if (dateDepart === dateRetour && heureDepart && heureRetour) {
-            let hD = parseFloat(heureDepart.split(':')[0]) + (parseFloat(heureDepart.split(':')[1]) / 60);
-            let hR = parseFloat(heureRetour.split(':')[0]) + (parseFloat(heureRetour.split(':')[1]) / 60);
-            let jourSemaine = d1.getDay();
+            // Calcul de l'intersection entre l'absence et le travail effectif
+            for (let i = 0; i < intervals.length; i++) {
+                let intStart = new Date(currentDay);
+                intStart.setHours(intervals[i][0], 0, 0, 0);
+                
+                let intEnd = new Date(currentDay);
+                intEnd.setHours(intervals[i][1], 0, 0, 0);
+
+                let calcStart = startDt > intStart ? startDt : intStart;
+                let calcEnd = endDt < intEnd ? endDt : intEnd;
+
+                if (calcStart < calcEnd) {
+                    let diffMs = calcEnd - calcStart;
+                    totalHeures += diffMs / (1000 * 60 * 60);
+                }
+            }
             
-            if (jourSemaine === 0) {
-                totalHeures = 0;
-                totalJours = 0;
-            } else if (jourSemaine === 6) {
-                let start = Math.max(hD, 9);
-                let end = Math.min(hR, 12);
-                totalHeures = Math.max(0, end - start);
-                totalJours = totalHeures / heuresJourneeNormale;
-            } else {
-                let mStart = Math.max(hD, 8);
-                let mEnd = Math.min(hR, 12);
-                let matinHeures = Math.max(0, mEnd - mStart);
-                
-                let aStart = Math.max(hD, 14);
-                let aEnd = Math.min(hR, 18);
-                let amHeures = Math.max(0, aEnd - aStart);
-                
-                totalHeures = matinHeures + amHeures;
-                totalJours = totalHeures / heuresJourneeNormale;
-            }
+            currentDay.setDate(currentDay.getDate() + 1);
         }
 
-        // Affiche le résultat en remplaçant le point par une virgule pour un style plus propre
-        document.getElementById('nbJours').value = totalJours.toFixed(2).replace('.', ',');
-        document.getElementById('nbHeures').value = totalHeures.toFixed(2).replace('.', ',');
+        // --- NOUVELLE LOGIQUE RH (Jours entiers + Heures) ---
+        let joursPleins = Math.floor(totalHeures / heuresParJour); // Ex: 11h / 8 = 1 jour
+        let heuresRestantes = totalHeures % heuresParJour;         // Ex: 11h % 8 = 3 heures
+
+        // Règle : Si absence >= 2 jours, on ignore les heures
+        if (joursPleins >= 2) {
+            document.getElementById('nbJours').value = joursPleins;
+            document.getElementById('nbHeures').value = ''; 
+        } else {
+            // Affichage propre : on ne met rien si c'est égal à 0
+            document.getElementById('nbJours').value = (joursPleins > 0) ? joursPleins : '';
+            document.getElementById('nbHeures').value = (heuresRestantes > 0) ? heuresRestantes : '';
+        }
     }
 
-    // =========================================================================
-    // L'ASTUCE ANTI-TRIANGLES : Transformation des champs avant l'impression
-    // =========================================================================
+    // ASTUCE ANTI-TRIANGLES
     window.addEventListener('beforeprint', () => {
         document.querySelectorAll('input[type="date"], input[type="time"]').forEach(el => {
-            el.setAttribute('data-type', el.type);     // On sauvegarde le type original
-            el.setAttribute('data-val', el.value);     // On sauvegarde la valeur originale
+            el.setAttribute('data-type', el.type);
+            el.setAttribute('data-val', el.value);
             
             if (el.type === 'date' && el.value) {
-                // Formate la date au format FR (JJ/MM/AAAA) pour le PDF
                 const parts = el.value.split('-');
                 if (parts.length === 3) {
                     el.type = 'text'; 
                     el.value = `${parts[2]}/${parts[1]}/${parts[0]}`; 
                 }
             } else {
-                // Change juste le type pour faire disparaître l'horloge
                 el.type = 'text';
             }
         });
     });
 
-    // On restaure les champs dans leur état normal après la génération du PDF
     window.addEventListener('afterprint', () => {
         document.querySelectorAll('input[data-type]').forEach(el => {
             el.type = el.getAttribute('data-type');
@@ -346,11 +335,9 @@
         });
     });
 
-    // Enregistrement PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .catch(error => console.log('Erreur SW:', error));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('Erreur SW'));
         });
     }
 </script>
