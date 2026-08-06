@@ -182,12 +182,10 @@
         </tr>
         <tr>
             <td class="label-cell">NOM</td>
-            <!-- Ajout de l'événement oninput pour écouter la saisie -->
             <td colspan="3"><input type="text" id="nomInput" value="BADIS" class="uppercase-input" oninput="updateSignature()"></td>
         </tr>
         <tr>
             <td class="label-cell">PRENOM</td>
-            <!-- Ajout de l'événement oninput pour écouter la saisie -->
             <td colspan="3"><input type="text" id="prenomInput" value="ZOUHAIR" class="uppercase-input" oninput="updateSignature()"></td>
         </tr>
         <tr>
@@ -218,7 +216,6 @@
         </tr>
         <tr>
             <td>
-                <!-- Ajout de l'ID pour pouvoir la modifier dynamiquement -->
                 <span class="text-signature" id="signatureText">Z. Badis</span>
             </td>
             <td></td>
@@ -234,25 +231,40 @@
 <script>
     document.getElementById('dateDemande').valueAsDate = new Date();
 
-    // --- NOUVELLE FONCTION : Mise à jour dynamique de la signature ---
     function updateSignature() {
         const nom = document.getElementById('nomInput').value.trim();
         const prenom = document.getElementById('prenomInput').value.trim();
         
         let signatureStr = '';
-        
         if (prenom.length > 0) {
             signatureStr += prenom.charAt(0).toUpperCase() + '. ';
         }
-        
         if (nom.length > 0) {
             signatureStr += nom.charAt(0).toUpperCase() + nom.slice(1).toLowerCase();
         }
-        
         document.getElementById('signatureText').textContent = signatureStr;
     }
 
-    // Calcul des jours et heures (version finale avec le samedi à 3h naturel)
+    // --- CONFIGURATION DES JOURS FÉRIÉS ---
+    // 1. Les jours fériés fixes (Format "MM-JJ")
+    const joursFeriesFixes = [
+        "01-01", // Nouvel An
+        "01-11", // Manifeste de l'Indépendance
+        "05-01", // Fête du Travail
+        "07-30", // Fête du Trône
+        "08-14", // Allégeance Oued Ed-Dahab
+        "08-20", // Révolution du Roi et du Peuple
+        "08-21", // Fête de la Jeunesse
+        "11-06", // Marche Verte
+        "11-18"  // Fête de l'Indépendance
+    ];
+
+    // 2. Les jours fériés mobiles pour l'année en cours (Format "AAAA-MM-JJ")
+    // Tu pourras ajouter ici les dates exactes de l'Aïd ou autres événements spécifiques
+    const joursFeriesMobiles = [
+        // "2026-03-20", // Exemple de format pour ajouter une date manuellement
+    ];
+
     function calculerAbsence() {
         const dateDepart = document.getElementById('dateDepart').value;
         const dateRetour = document.getElementById('dateRetour').value;
@@ -286,6 +298,20 @@
 
         while (currentDay <= endDay) {
             let jourSemaine = currentDay.getDay(); 
+            
+            // Formatage de la date en cours pour vérifier si elle est fériée
+            let mois = String(currentDay.getMonth() + 1).padStart(2, '0');
+            let jour = String(currentDay.getDate()).padStart(2, '0');
+            let annee = currentDay.getFullYear();
+            let dateFixe = `${mois}-${jour}`;
+            let dateMobile = `${annee}-${mois}-${jour}`;
+
+            // --- LE FILTRE MAGIQUE ANTI-FÉRIÉS ---
+            // Si c'est un dimanche OU un jour férié fixe OU un jour férié mobile, on passe au jour suivant directement
+            if (jourSemaine === 0 || joursFeriesFixes.includes(dateFixe) || joursFeriesMobiles.includes(dateMobile)) {
+                currentDay.setDate(currentDay.getDate() + 1);
+                continue; 
+            }
             
             let intervals = [];
             let workHoursForDay = 8;
@@ -340,7 +366,6 @@
         document.getElementById('nbHeures').value = (totalHeures > 0) ? totalHeures.toString().replace('.', ',') : '';
     }
 
-    // Gestion de l'affichage PDF
     window.addEventListener('beforeprint', () => {
         document.querySelectorAll('input[type="date"], input[type="time"]').forEach(el => {
             el.setAttribute('data-type', el.type);
