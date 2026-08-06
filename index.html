@@ -260,9 +260,8 @@
     ];
 
     // 2. Les jours fériés mobiles pour l'année en cours (Format "AAAA-MM-JJ")
-    // Tu pourras ajouter ici les dates exactes de l'Aïd ou autres événements spécifiques
     const joursFeriesMobiles = [
-        // "2026-03-20", // Exemple de format pour ajouter une date manuellement
+        "2026-09-25" // Aïd Al Mawlid (Secteur Privé - 1 seul jour)
     ];
 
     function calculerAbsence() {
@@ -299,15 +298,12 @@
         while (currentDay <= endDay) {
             let jourSemaine = currentDay.getDay(); 
             
-            // Formatage de la date en cours pour vérifier si elle est fériée
             let mois = String(currentDay.getMonth() + 1).padStart(2, '0');
             let jour = String(currentDay.getDate()).padStart(2, '0');
             let annee = currentDay.getFullYear();
             let dateFixe = `${mois}-${jour}`;
             let dateMobile = `${annee}-${mois}-${jour}`;
 
-            // --- LE FILTRE MAGIQUE ANTI-FÉRIÉS ---
-            // Si c'est un dimanche OU un jour férié fixe OU un jour férié mobile, on passe au jour suivant directement
             if (jourSemaine === 0 || joursFeriesFixes.includes(dateFixe) || joursFeriesMobiles.includes(dateMobile)) {
                 currentDay.setDate(currentDay.getDate() + 1);
                 continue; 
