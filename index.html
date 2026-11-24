@@ -197,15 +197,16 @@ input[readonly] { background: var(--label-bg); font-weight: 700; }
 /* ---------- Signatures ---------- */
 .sig {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     margin-top: 18px;
-    border-top: 1px solid var(--line);
-    border-left: 1px solid var(--line);
+    border: 1px solid var(--line);
 }
 .sig > div {
     border-right: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
 }
+.sig > div:nth-child(even) { border-right: 0; }
+.sig > div:nth-last-child(-n+2) { border-bottom: 0; }
 .sig .sig-h {
     min-height: 44px;
     padding: 8px 10px;
@@ -428,7 +429,6 @@ input[readonly] { background: var(--label-bg); font-weight: 700; }
     <!-- ===== Signatures ===== -->
     <div class="sig">
         <div class="sig-h">SIGNATURE :<br>DEMANDEUR</div>
-        <div class="sig-h"><br>RESPONSABLE</div>
         <div class="sig-h"><br>DIRECTION</div>
         <div class="sig-b">
             <div class="esign" id="esign" hidden>
@@ -440,7 +440,6 @@ input[readonly] { background: var(--label-bg); font-weight: 700; }
             </div>
             <span class="esign-empty noprint" id="esignEmpty">Pas encore signé</span>
         </div>
-        <div class="sig-b"></div>
         <div class="sig-b"></div>
     </div>
 

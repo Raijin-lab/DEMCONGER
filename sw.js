@@ -1,7 +1,7 @@
 /* Service worker – Demande d'absence A2CIM
    Changer CACHE_VERSION à chaque modification de l'application
    pour forcer la mise à jour chez tous les utilisateurs. */
-const CACHE_VERSION = "a2cim-absence-v4";
+const CACHE_VERSION = "a2cim-absence-v5";
 const FICHIERS = [
   "./",
   "./index.html",
