@@ -1,255 +1,475 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demande d'Absence</title>
-    <link rel="manifest" href="manifest.json">
-    <style>
-        * { box-sizing: border-box; }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 20px 10px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Demande d'absence – A2CIM</title>
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Absences A2CIM">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-        .page-a4 {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+<style>
+:root {
+    --ink: #1a1a1a;
+    --black: #000;
+    --red: #d6202c;
+    --red-soft: #fdecee;
+    --paper: #fff;
+    --desk: #e9ebef;
+    --label-bg: #f4f4f4;
+    --muted: #555;
+    --line: #000;
+    --field-line: #9aa0a6;
+    --focus: #1a5fd0;
+    --warn: #8a5300;
+    --font: "Myriad Pro", "Segoe UI", Calibri, "Helvetica Neue", Arial, sans-serif;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        
-        td, th {
-            border: 1px solid #000;
-            padding: 8px 12px;
-            vertical-align: middle;
-        }
+* { box-sizing: border-box; }
 
-        .header-table td {
-            border: 2px solid #000;
-            text-align: center;
-        }
-        .logo-cell {
-            width: 35%;
-        }
-        .logo {
-            font-size: 42px;
-            font-weight: bold;
-            margin: 0;
-        }
-        .logo .a2 { color: #555; }
-        .logo .cim { color: #d32f2f; }
-        .title-doc {
-            font-size: 22px;
-            font-weight: bold;
-        }
+html { -webkit-text-size-adjust: 100%; }
 
-        .date-demande-container {
-            text-align: right;
-            margin-bottom: 15px;
-            font-size: 15px;
-            font-weight: bold;
-        }
-        .date-demande-container input {
-            border: none;
-            border-bottom: 1px dashed #000;
-            font-size: 15px;
-            font-weight: bold;
-            font-family: inherit;
-            width: 130px;
-            text-align: center;
-        }
+body {
+    margin: 0;
+    padding: 16px 10px calc(24px + env(safe-area-inset-bottom, 0px));
+    background: var(--desk);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.35;
+}
 
-        .form-table td {
-            height: 45px;
-            font-size: 15px;
-        }
-        .label-cell {
-            background-color: #f9f9f9;
-            font-weight: bold;
-            width: 25%;
-        }
+.sheet {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--paper);
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .12);
+}
 
-        .checkbox-group {
-            display: flex;
-            justify-content: flex-start;
-            gap: 25px;
-            flex-wrap: wrap;
-        }
-        .checkbox-group label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-        }
+/* ---------- En-tête : logo en haut ---------- */
+.head {
+    display: grid;
+    grid-template-columns: minmax(220px, 34%) 1fr;
+    border: 2px solid var(--line);
+    margin-bottom: 16px;
+}
+.brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    border-right: 2px solid var(--line);
+}
+.brand svg { display: block; width: 100%; max-width: 230px; height: auto; }
+.head h1 {
+    margin: 0;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 22px;
+    line-height: 1.2;
+    font-weight: 700;
+}
 
-        input[type="text"], input[type="date"], input[type="time"] {
-            width: 100%;
-            border: none;
-            outline: none;
-            font-size: 14px;
-            font-family: inherit;
-            background: transparent;
-        }
-        .uppercase-input {
-            text-transform: uppercase;
-        }
+.date-demande {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-weight: 700;
+}
+.date-demande input[type="date"] { width: 170px; }
 
-        .sig-table th {
-            background-color: #f9f9f9;
-            text-align: left;
-            font-size: 12px;
-            vertical-align: top;
-            height: 40px;
-            width: 33.33%;
-        }
-        .sig-table td {
-            height: 100px;
-            text-align: center;
-        }
-        .text-signature {
-            font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
-            font-size: 32px;
-            color: #000044;
-            transform: rotate(-5deg);
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
+/* ---------- Formulaire ---------- */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+}
+.cell {
+    min-width: 0;
+    margin: 0;
+    padding: 10px 12px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+.cell.full { grid-column: 1 / -1; }
+.cell > label,
+.cell > legend,
+.cell .cap {
+    display: block;
+    margin: 0 0 5px;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+}
 
-        .btn-container {
-            text-align: center;
-            margin-top: 30px;
-        }
-        .btn-print {
-            padding: 12px 24px;
-            font-size: 16px;
-            background-color: #0056b3;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            width: 100%;
-            max-width: 300px;
-        }
+input[type="text"],
+input[type="date"],
+input[type="time"] {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 10px;
+    border: 1px solid var(--field-line);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+    font-size: 16px; /* évite le zoom automatique sur iPhone */
+}
+input[readonly] { background: var(--label-bg); font-weight: 700; }
+.upper { text-transform: uppercase; }
 
-        @media print {
-            body { background: none; padding: 0; }
-            .page-a4 { box-shadow: none; padding: 0; max-width: 100%; width: 100%; margin: 0; }
-            .btn-container { display: none; }
-            .logo .a2 { color: #555 !important; -webkit-print-color-adjust: exact; }
-            .logo .cim { color: #d32f2f !important; -webkit-print-color-adjust: exact; }
-            .label-cell, .sig-table th { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
-        }
-    </style>
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.invalid input,
+.invalid.types-wrap .opt { border-color: var(--red); }
+.invalid input { box-shadow: 0 0 0 2px var(--red-soft); }
+
+/* Type d'absence */
+.types { display: flex; flex-wrap: wrap; gap: 10px; }
+.opt {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 46px;
+    padding: 8px 14px;
+    border: 1px solid var(--field-line);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    user-select: none;
+}
+.opt input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+}
+.opt .box {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--black);
+    border-radius: 3px;
+    display: grid;
+    place-items: center;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1;
+}
+.opt input:checked + .box::after { content: "X"; }
+.opt:has(input:checked) { border: 2px solid var(--red); background: var(--red-soft); padding: 7px 13px; }
+.opt:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.hint { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+
+/* Valeurs dédiées à l'impression (jamais visibles à l'écran) */
+.pv { display: none; font-size: 15px; font-weight: 600; }
+
+/* Messages */
+.msg {
+    min-height: 22px;
+    margin: 12px 0 0;
+    font-size: 14.5px;
+    font-weight: 600;
+}
+.msg.error { color: var(--red); }
+.msg.warn { color: var(--warn); }
+.msg.info { color: var(--muted); font-weight: 400; }
+
+/* ---------- Signatures ---------- */
+.sig {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 18px;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+}
+.sig > div {
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+.sig .sig-h {
+    min-height: 44px;
+    padding: 8px 10px;
+    background: var(--label-bg);
+    font-size: 12px;
+    font-weight: 700;
+}
+.sig .sig-b {
+    height: 124px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+}
+.esign {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    text-align: center;
+    max-width: 100%;
+}
+.esign-name {
+    font-family: "Brush Script MT", "Lucida Handwriting", "Segoe Script", cursive;
+    font-size: 26px;
+    line-height: 1.1;
+    color: #000044;
+    transform: rotate(-3deg);
+    overflow-wrap: anywhere;
+}
+.esign-stroke { display: block; width: 82%; height: 14px; }
+.esign-meta {
+    font-size: 10.5px;
+    line-height: 1.25;
+    color: #222;
+    white-space: pre-line;
+}
+.esign-empty { font-size: 12.5px; color: var(--muted); font-style: italic; }
+[hidden] { display: none !important; }
+
+/* ---------- Boutons ---------- */
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+.btn {
+    flex: 1 1 200px;
+    min-height: 48px;
+    padding: 10px 16px;
+    border: 2px solid var(--black);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--black);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--black); color: #fff; }
+.btn.accent { border-color: var(--red); color: var(--red); }
+.btn.ghost { border-color: var(--field-line); color: var(--muted); font-weight: 600; }
+#btnInstall[hidden] { display: none; }
+
+/* ---------- Téléphone ---------- */
+@media (max-width: 600px) {
+    body { padding: 0 0 calc(20px + env(safe-area-inset-bottom, 0px)); }
+    .sheet { padding: 14px 12px; box-shadow: none; }
+    .head { grid-template-columns: 1fr; }
+    .brand { border-right: 0; border-bottom: 2px solid var(--line); padding: 14px; }
+    .brand svg { max-width: 250px; }
+    .head h1 { font-size: 18px; padding: 10px 12px; }
+    .date-demande { justify-content: space-between; }
+    .cell.name { grid-column: 1 / -1; }
+    .types { flex-direction: column; }
+    .opt { width: 100%; }
+    .esign-name { font-size: 20px; }
+    .esign-meta { font-size: 9.5px; }
+    .sig .sig-h { font-size: 11px; padding: 6px; }
+}
+
+/* ---------- Impression / PDF ---------- */
+@page { size: A4; margin: 12mm; }
+
+@media print {
+    body { background: #fff; padding: 0; font-size: 14px; }
+    .sheet { max-width: none; margin: 0; padding: 0; box-shadow: none; }
+    .noprint, .hint, dialog { display: none !important; }
+    .msg { display: none; }
+
+    .head { grid-template-columns: minmax(200px, 34%) 1fr; }
+    .head h1 { font-size: 20px; }
+    .brand { border-right: 2px solid var(--line); border-bottom: 0; }
+
+    .date-demande input[type="date"] { display: none; }
+    input[type="date"], input[type="time"] { display: none !important; }
+    .pv { display: block; min-height: 24px; }
+
+    input[type="text"] {
+        border: 0; padding: 4px 0; min-height: 28px; background: none;
+        box-shadow: none; font-size: 15px; font-weight: 600;
+    }
+    input[readonly] { background: none; }
+
+    .cell.name { grid-column: auto; }
+    .types { flex-direction: row; gap: 26px; }
+    .opt, .opt:has(input:checked) {
+        border: 0; background: none; padding: 0; min-height: 0; width: auto;
+    }
+    .opt input { display: none; }
+    .sig .sig-b { height: 120px; }
+    .esign-name { font-size: 28px; }
+
+    .brand, .cell > label, .cell > legend, .cell .cap, .sig .sig-h {
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .sig .sig-h { background: var(--label-bg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn:active { transform: none; }
+}
+</style>
 </head>
+
 <body>
+<main class="sheet" id="sheet">
 
-<div class="page-a4">
-    
-    <table class="header-table">
-        <tr>
-            <td class="logo-cell">
-                <div class="logo"><span class="a2">A2</span><span class="cim">CIM</span></div>
-            </td>
-            <td class="title-doc">DEMANDE D'AUTORISATION D'ABSENCE</td>
-        </tr>
-    </table>
+    <!-- ===== En-tête : logo A2cim (identique à la carte de visite) ===== -->
+    <header class="head">
+        <div class="brand">
+            <svg viewBox="0 0 340 130" role="img" aria-label="A2cim" xmlns="http://www.w3.org/2000/svg">
+                <g font-family="'Myriad Pro','Segoe UI',Calibri,'Helvetica Neue',Arial,sans-serif">
+                    <text x="2" y="108" font-size="128" font-style="italic" font-weight="300" fill="#000"
+                          textLength="84" lengthAdjust="spacingAndGlyphs">A</text>
+                    <text x="94" y="108" font-size="128" font-weight="500" fill="#d6202c"
+                          textLength="62" lengthAdjust="spacingAndGlyphs">2</text>
+                    <rect x="164" y="8" width="174" height="108" fill="#000"/>
+                    <text x="176" y="100" font-size="84" font-weight="400" fill="#fff"
+                          textLength="150" lengthAdjust="spacingAndGlyphs">cim</text>
+                </g>
+            </svg>
+        </div>
+        <h1>Demande d'autorisation d'absence</h1>
+    </header>
 
-    <div class="date-demande-container">
-        Date de la demande : <input type="date" id="dateDemande">
+    <div class="date-demande">
+        <label for="dateDemande">Date de la demande</label>
+        <input type="date" id="dateDemande">
+        <span class="pv" id="pv-dateDemande"></span>
     </div>
 
-    <table class="form-table">
-        <tr>
-            <td class="label-cell">Type d'absence :</td>
-            <td colspan="3">
-                <div class="checkbox-group">
-                    <label><input type="radio" name="type" value="conge_paye"> Congé Payé</label>
-                    <label><input type="radio" name="type" value="conge_sans_solde"> Congé sans solde</label>
-                    <label><input type="radio" name="type" value="recuperation"> Récupération</label>
+    <form id="form" novalidate autocomplete="on" onsubmit="return false">
+        <div class="grid">
+
+            <div class="cell full types-wrap" id="cell-type" role="radiogroup" aria-labelledby="lblType">
+                <span class="cap" id="lblType">Type d'absence</span>
+                <div class="types">
+                    <label class="opt"><input type="radio" name="type" value="Congé payé"><span class="box" aria-hidden="true"></span>Congé payé</label>
+                    <label class="opt"><input type="radio" name="type" value="Congé sans solde"><span class="box" aria-hidden="true"></span>Congé sans solde</label>
+                    <label class="opt"><input type="radio" name="type" value="Récupération"><span class="box" aria-hidden="true"></span>Récupération</label>
                 </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="label-cell">NOM</td>
-            <td colspan="3"><input type="text" id="nomInput" value="BADIS" class="uppercase-input" oninput="updateSignature()"></td>
-        </tr>
-        <tr>
-            <td class="label-cell">PRENOM</td>
-            <td colspan="3"><input type="text" id="prenomInput" value="ZOUHAIR" class="uppercase-input" oninput="updateSignature()"></td>
-        </tr>
-        <tr>
-            <td class="label-cell">Date Départ</td>
-            <td style="width: 25%;"><input type="date" id="dateDepart" onchange="calculerAbsence()"></td>
-            <td class="label-cell" style="width: 25%;">Heure Départ</td>
-            <td style="width: 25%;"><input type="time" id="heureDepart" onchange="calculerAbsence()"></td>
-        </tr>
-        <tr>
-            <td class="label-cell">Date Retour</td>
-            <td><input type="date" id="dateRetour" onchange="calculerAbsence()"></td>
-            <td class="label-cell">Heure Retour</td>
-            <td><input type="time" id="heureRetour" onchange="calculerAbsence()"></td>
-        </tr>
-        <tr>
-            <td class="label-cell">Nombre Jours Abs</td>
-            <td><input type="text" id="nbJours" readonly></td>
-            <td class="label-cell">Nombre Heures Abs</td>
-            <td><input type="text" id="nbHeures" readonly></td>
-        </tr>
-    </table>
+            </div>
 
-    <table class="sig-table">
-        <tr>
-            <th>SIGNATURE :<br>DEMANDEUR</th>
-            <th><br>RESPONSABLE</th>
-            <th><br>DIRECTION</th>
-        </tr>
-        <tr>
-            <td>
-                <span class="text-signature" id="signatureText">Z. Badis</span>
-            </td>
-            <td></td>
-            <td></td>
-        </tr>
-    </table>
+            <div class="cell name" id="cell-nom">
+                <label for="nomInput">Nom</label>
+                <input type="text" id="nomInput" class="upper" autocomplete="family-name" autocapitalize="characters" enterkeyhint="next">
+            </div>
+            <div class="cell name" id="cell-prenom">
+                <label for="prenomInput">Prénom</label>
+                <input type="text" id="prenomInput" class="upper" autocomplete="given-name" autocapitalize="characters" enterkeyhint="next">
+            </div>
 
-    <div class="btn-container">
-        <button class="btn-print" onclick="window.print()">Imprimer / Enregistrer PDF</button>
+            <div class="cell" id="cell-dateDepart">
+                <label for="dateDepart">Date de départ</label>
+                <input type="date" id="dateDepart">
+                <span class="pv" id="pv-dateDepart"></span>
+            </div>
+            <div class="cell" id="cell-heureDepart">
+                <label for="heureDepart">Heure de départ</label>
+                <input type="time" id="heureDepart">
+                <span class="pv" id="pv-heureDepart"></span>
+            </div>
+
+            <div class="cell" id="cell-dateRetour">
+                <label for="dateRetour">Date de retour</label>
+                <input type="date" id="dateRetour">
+                <span class="pv" id="pv-dateRetour"></span>
+            </div>
+            <div class="cell" id="cell-heureRetour">
+                <label for="heureRetour">Heure de retour</label>
+                <input type="time" id="heureRetour">
+                <span class="pv" id="pv-heureRetour"></span>
+            </div>
+
+            <div class="cell">
+                <label for="nbJours">Nombre de jours d'absence</label>
+                <input type="text" id="nbJours" readonly tabindex="-1">
+            </div>
+            <div class="cell">
+                <label for="nbHeures">Nombre d'heures d'absence</label>
+                <input type="text" id="nbHeures" readonly tabindex="-1">
+            </div>
+        </div>
+        <p class="hint">Retour = date et heure de reprise du travail. Dimanches et jours fériés ne sont pas comptés.</p>
+    </form>
+
+    <p class="msg info" id="msg" role="status" aria-live="polite"></p>
+
+    <!-- ===== Signatures ===== -->
+    <div class="sig">
+        <div class="sig-h">SIGNATURE :<br>DEMANDEUR</div>
+        <div class="sig-h"><br>RESPONSABLE</div>
+        <div class="sig-h"><br>DIRECTION</div>
+        <div class="sig-b">
+            <div class="esign" id="esign" hidden>
+                <span class="esign-name" id="esignName"></span>
+                <svg class="esign-stroke" viewBox="0 0 200 16" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M3 11 C 28 2, 52 15, 92 8 S 160 3, 197 9" fill="none" stroke="#000044" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="esign-meta" id="esignMeta"></span>
+            </div>
+            <span class="esign-empty noprint" id="esignEmpty">Pas encore signé</span>
+        </div>
+        <div class="sig-b"></div>
+        <div class="sig-b"></div>
     </div>
-</div>
+
+    <!-- ===== Boutons (non imprimés) ===== -->
+    <div class="actions noprint">
+        <button type="button" class="btn primary" id="btnPrint">Imprimer / Enregistrer en PDF</button>
+        <button type="button" class="btn accent" id="btnShare">Partager le résumé</button>
+        <button type="button" class="btn" id="btnSign">Signer électroniquement</button>
+        <button type="button" class="btn ghost" id="btnReset">Nouvelle demande</button>
+        <button type="button" class="btn ghost" id="btnInstall" hidden>Installer l'application</button>
+    </div>
+</main>
 
 <script>
-    document.getElementById('dateDemande').valueAsDate = new Date();
+(function () {
+    "use strict";
 
-    function updateSignature() {
-        const nom = document.getElementById('nomInput').value.trim();
-        const prenom = document.getElementById('prenomInput').value.trim();
-        
-        let signatureStr = '';
-        if (prenom.length > 0) {
-            signatureStr += prenom.charAt(0).toUpperCase() + '. ';
-        }
-        if (nom.length > 0) {
-            signatureStr += nom.charAt(0).toUpperCase() + nom.slice(1).toLowerCase();
-        }
-        document.getElementById('signatureText').textContent = signatureStr;
-    }
+    /* =====================================================================
+       CONFIGURATION  (à mettre à jour par l'administrateur)
+       ===================================================================== */
 
-    // --- CONFIGURATION DES JOURS FÉRIÉS ---
-    // 1. Les jours fériés fixes (Format "MM-JJ")
-    const joursFeriesFixes = [
+    // Horaires de travail : [heure début, heure fin] par jour (0 = dimanche)
+    const HORAIRES = {
+        1: [[8, 12], [14, 18]],
+        2: [[8, 12], [14, 18]],
+        3: [[8, 12], [14, 18]],
+        4: [[8, 12], [14, 18]],
+        5: [[8, 12], [14, 18]],
+        6: [[9, 12]]            // samedi matin
+    };
+    const HEURES_PAR_JOUR = 8;  // 8 heures cumulées = 1 jour
+
+    // Jours fériés fixes (format "MM-JJ")
+    const FERIES_FIXES = [
         "01-01", // Nouvel An
         "01-11", // Manifeste de l'Indépendance
+        "01-14", // Nouvel An amazigh
         "05-01", // Fête du Travail
         "07-30", // Fête du Trône
         "08-14", // Allégeance Oued Ed-Dahab
@@ -259,139 +479,367 @@
         "11-18"  // Fête de l'Indépendance
     ];
 
-    // 2. Les jours fériés mobiles pour l'année en cours (Format "AAAA-MM-JJ")
-    const joursFeriesMobiles = [
-        "2026-09-25" // Aïd Al Mawlid (Secteur Privé - 1 seul jour)
+    // Jours fériés religieux (format "AAAA-MM-JJ") : dates fixées chaque année
+    // par le ministère des Habous selon la lune. À compléter dès l'annonce.
+    const FERIES_MOBILES = [
+        // 2026
+        "2026-03-20", "2026-03-21", // Aïd Al Fitr
+        "2026-05-27", "2026-05-28", // Aïd Al Adha
+        "2026-06-17",               // 1er Moharram
+        "2026-08-26"                // Aïd Al Mawlid
+        // 2027 : à ajouter quand les dates seront annoncées, puis ajouter 2027 ci-dessous
     ];
+    // Années pour lesquelles la liste ci-dessus est complète
+    const ANNEES_MOBILES_OK = [2026];
 
-    function calculerAbsence() {
-        const dateDepart = document.getElementById('dateDepart').value;
-        const dateRetour = document.getElementById('dateRetour').value;
-        const heureDepart = document.getElementById('heureDepart').value;
-        const heureRetour = document.getElementById('heureRetour').value;
+    /* =====================================================================
+       OUTILS
+       ===================================================================== */
+    const $ = (id) => document.getElementById(id);
+    const pad = (n) => String(n).padStart(2, "0");
+    const ymd = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    const frDate = (s) => { const p = (s || "").split("-"); return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : ""; };
+    const parseYmd = (s) => { const p = s.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]); };
+    const toMin = (t) => { const p = t.split(":").map(Number); return p[0] * 60 + p[1]; };
+    const fmtNum = (n) => String(Math.round(n * 100) / 100).replace(".", ",");
+    const store = {
+        get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+        set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignoré */ } },
+        del(k) { try { localStorage.removeItem(k); } catch (e) { /* ignoré */ } }
+    };
 
-        if (!dateDepart || !dateRetour || !heureDepart || !heureRetour) {
-            document.getElementById('nbJours').value = '';
-            document.getElementById('nbHeures').value = '';
-            return;
-        }
-
-        let startDt = new Date(`${dateDepart}T${heureDepart}:00`);
-        let endDt = new Date(`${dateRetour}T${heureRetour}:00`);
-        
-        if (startDt >= endDt) {
-            document.getElementById('nbJours').value = '';
-            document.getElementById('nbHeures').value = '';
-            return;
-        }
-
-        let totalJours = 0;
-        let totalHeures = 0;
-        const heuresParJour = 8; 
-
-        let currentDay = new Date(dateDepart);
-        currentDay.setHours(0, 0, 0, 0);
-        
-        let endDay = new Date(dateRetour);
-        endDay.setHours(0, 0, 0, 0);
-
-        while (currentDay <= endDay) {
-            let jourSemaine = currentDay.getDay(); 
-            
-            let mois = String(currentDay.getMonth() + 1).padStart(2, '0');
-            let jour = String(currentDay.getDate()).padStart(2, '0');
-            let annee = currentDay.getFullYear();
-            let dateFixe = `${mois}-${jour}`;
-            let dateMobile = `${annee}-${mois}-${jour}`;
-
-            if (jourSemaine === 0 || joursFeriesFixes.includes(dateFixe) || joursFeriesMobiles.includes(dateMobile)) {
-                currentDay.setDate(currentDay.getDate() + 1);
-                continue; 
-            }
-            
-            let intervals = [];
-            let workHoursForDay = 8;
-
-            if (jourSemaine >= 1 && jourSemaine <= 5) {
-                intervals.push([8, 12]);   
-                intervals.push([14, 18]);  
-                workHoursForDay = 8;
-            } else if (jourSemaine === 6) {
-                intervals.push([9, 12]);   
-                workHoursForDay = 3; 
-            }
-
-            let missedHours = 0;
-
-            for (let i = 0; i < intervals.length; i++) {
-                let intStart = new Date(currentDay);
-                intStart.setHours(intervals[i][0], 0, 0, 0);
-                
-                let intEnd = new Date(currentDay);
-                intEnd.setHours(intervals[i][1], 0, 0, 0);
-
-                let calcStart = startDt > intStart ? startDt : intStart;
-                let calcEnd = endDt < intEnd ? endDt : intEnd;
-
-                if (calcStart < calcEnd) {
-                    missedHours += (calcEnd - calcStart) / (1000 * 60 * 60);
-                }
-            }
-            
-            missedHours = Math.round(missedHours * 100) / 100;
-
-            if (jourSemaine >= 1 && jourSemaine <= 5) {
-                if (missedHours >= workHoursForDay) {
-                    totalJours += 1; 
-                } else {
-                    totalHeures += missedHours; 
-                }
-            } else if (jourSemaine === 6) {
-                totalHeures += missedHours; 
-            }
-            
-            currentDay.setDate(currentDay.getDate() + 1);
-        }
-
-        if (totalHeures >= heuresParJour) {
-            totalJours += Math.floor(totalHeures / heuresParJour);
-            totalHeures = totalHeures % heuresParJour;
-        }
-
-        document.getElementById('nbJours').value = (totalJours > 0) ? totalJours : '';
-        document.getElementById('nbHeures').value = (totalHeures > 0) ? totalHeures.toString().replace('.', ',') : '';
+    function isFerie(d) {
+        return FERIES_FIXES.includes(pad(d.getMonth() + 1) + "-" + pad(d.getDate())) ||
+               FERIES_MOBILES.includes(ymd(d));
+    }
+    function isOuvre(d) { return d.getDay() !== 0 && !isFerie(d); }
+    function jourOuvreSuivant(d) {
+        const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        do { x.setDate(x.getDate() + 1); } while (!isOuvre(x));
+        return x;
     }
 
-    window.addEventListener('beforeprint', () => {
-        document.querySelectorAll('input[type="date"], input[type="time"]').forEach(el => {
-            el.setAttribute('data-type', el.type);
-            el.setAttribute('data-val', el.value);
-            
-            if (el.type === 'date' && el.value) {
-                const parts = el.value.split('-');
-                if (parts.length === 3) {
-                    el.type = 'text'; 
-                    el.value = `${parts[2]}/${parts[1]}/${parts[0]}`; 
-                }
-            } else {
-                el.type = 'text';
+    /* =====================================================================
+       CALCUL DE L'ABSENCE
+       ===================================================================== */
+    function calculer() {
+        const dd = $("dateDepart").value, hd = $("heureDepart").value;
+        const dr = $("dateRetour").value, hr = $("heureRetour").value;
+
+        if (!dd || !hd || !dr || !hr) return { vide: true };
+
+        const start = parseYmd(dd), end = parseYmd(dr);
+        const sMinTotal = toMin(hd), eMinTotal = toMin(hr);
+
+        if (end < start || (end.getTime() === start.getTime() && eMinTotal <= sMinTotal)) {
+            return { erreur: "La date et l'heure de retour doivent être après le départ." };
+        }
+
+        let jours = 0, heures = 0;
+        const cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+
+        while (cur <= end) {
+            if (isOuvre(cur)) {
+                const dow = cur.getDay();
+                const sMin = cur.getTime() === start.getTime() ? sMinTotal : 0;
+                const eMin = cur.getTime() === end.getTime() ? eMinTotal : 1440;
+
+                let manque = 0;
+                (HORAIRES[dow] || []).forEach(function (pl) {
+                    const a = Math.max(sMin, pl[0] * 60), b = Math.min(eMin, pl[1] * 60);
+                    if (b > a) manque += (b - a) / 60;
+                });
+                manque = Math.round(manque * 100) / 100;
+
+                const journeeComplete = (HORAIRES[dow] || []).reduce((t, p) => t + (p[1] - p[0]), 0);
+                if (dow >= 1 && dow <= 5 && manque >= journeeComplete) jours += 1;
+                else heures += manque;
             }
-        });
-    });
+            cur.setDate(cur.getDate() + 1);
+        }
 
-    window.addEventListener('afterprint', () => {
-        document.querySelectorAll('input[data-type]').forEach(el => {
-            el.type = el.getAttribute('data-type');
-            el.value = el.getAttribute('data-val'); 
-        });
-    });
+        if (heures >= HEURES_PAR_JOUR) {
+            jours += Math.floor(heures / HEURES_PAR_JOUR);
+            heures = Math.round((heures % HEURES_PAR_JOUR) * 100) / 100;
+        }
 
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('Erreur SW'));
+        const anneesNonConf = [];
+        for (let y = start.getFullYear(); y <= end.getFullYear(); y++) {
+            if (!ANNEES_MOBILES_OK.includes(y)) anneesNonConf.push(y);
+        }
+        return { jours: jours, heures: heures, anneesNonConf: anneesNonConf };
+    }
+
+    function setMsg(text, type) {
+        const m = $("msg");
+        m.textContent = text || "";
+        m.className = "msg " + (type || "info");
+    }
+
+    function maj() {
+        invalider();
+        const r = calculer();
+        syncPrint();
+
+        if (r.vide) {
+            $("nbJours").value = ""; $("nbHeures").value = "";
+            setMsg("", "info");
+            return r;
+        }
+        if (r.erreur) {
+            $("nbJours").value = ""; $("nbHeures").value = "";
+            setMsg(r.erreur, "error");
+            return r;
+        }
+
+        $("nbJours").value = r.jours > 0 ? String(r.jours) : "0";
+        $("nbHeures").value = r.heures > 0 ? fmtNum(r.heures) : "0";
+
+        if (r.jours === 0 && r.heures === 0) {
+            setMsg("Aucun jour ouvré sur cette période (dimanche ou jour férié).", "warn");
+        } else if (r.anneesNonConf.length) {
+            setMsg("Les jours fériés religieux de " + r.anneesNonConf.join(", ") +
+                   " ne sont pas encore enregistrés : vérifiez le décompte.", "warn");
+        } else {
+            setMsg("", "info");
+        }
+        return r;
+    }
+
+    /* =====================================================================
+       IMPRESSION : valeurs fixes (jj/mm/aaaa) pour un rendu identique partout
+       ===================================================================== */
+    function syncPrint() {
+        ["dateDemande", "dateDepart", "dateRetour"].forEach(function (id) {
+            $("pv-" + id).textContent = frDate($(id).value);
+        });
+        ["heureDepart", "heureRetour"].forEach(function (id) {
+            $("pv-" + id).textContent = $(id).value;
         });
     }
+
+    /* =====================================================================
+       NOM, PRÉNOM, SIGNATURE
+       ===================================================================== */
+    let signature = null; // { date: Date, ref: string } une fois signé
+
+    function capitalize(x) { return x ? x.charAt(0).toUpperCase() + x.slice(1).toLowerCase() : ""; }
+    function capitalizeMots(x) {
+        return x.trim().split(/\s+/).map(function (m) {
+            return m.split("-").map(capitalize).join("-");
+        }).join(" ");
+    }
+
+    // Référence courte calculée à partir du contenu de la demande et de l'horodatage
+    function hashRef(str) {
+        let h = 2166136261;
+        for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+        return (h >>> 0).toString(16).toUpperCase().padStart(8, "0");
+    }
+    function contenuDemande() {
+        const t = document.querySelector('input[name="type"]:checked');
+        return [t ? t.value : "", $("nomInput").value.trim(), $("prenomInput").value.trim(),
+                $("dateDemande").value, $("dateDepart").value, $("heureDepart").value,
+                $("dateRetour").value, $("heureRetour").value].join("|");
+    }
+
+    function majSignature() {
+        const box = $("esign"), vide = $("esignEmpty");
+        if (!signature) { box.hidden = true; vide.hidden = false; return; }
+        const d = signature.date;
+        $("esignName").textContent = capitalizeMots($("prenomInput").value) + " " + capitalizeMots($("nomInput").value);
+        $("esignMeta").textContent = "Signé électroniquement\nle " + frDate(ymd(d)) + " à " + pad(d.getHours()) + ":" + pad(d.getMinutes()) +
+                                     "\nRéf. " + signature.ref;
+        box.hidden = false; vide.hidden = true;
+    }
+
+    function signer() {
+        const d = new Date();
+        signature = { date: d, ref: hashRef(contenuDemande() + "|" + d.getTime()) };
+        majSignature();
+    }
+    // Toute modification de la demande annule la signature : elle doit porter sur ce qui est imprimé
+    function invalider() {
+        if (signature) { signature = null; majSignature(); }
+    }
+
+    function sauverIdentite() {
+        store.set("a2cim_abs_identite", JSON.stringify({
+            nom: $("nomInput").value, prenom: $("prenomInput").value
+        }));
+    }
+
+    /* =====================================================================
+       VALIDATION
+       ===================================================================== */
+    function champsManquants() {
+        const manque = [];
+        if (!document.querySelector('input[name="type"]:checked')) manque.push({ cell: "cell-type", label: "type d'absence", focus: 'input[name="type"]' });
+        if (!$("nomInput").value.trim()) manque.push({ cell: "cell-nom", label: "nom", focus: "#nomInput" });
+        if (!$("prenomInput").value.trim()) manque.push({ cell: "cell-prenom", label: "prénom", focus: "#prenomInput" });
+        if (!$("dateDepart").value) manque.push({ cell: "cell-dateDepart", label: "date de départ", focus: "#dateDepart" });
+        if (!$("heureDepart").value) manque.push({ cell: "cell-heureDepart", label: "heure de départ", focus: "#heureDepart" });
+        if (!$("dateRetour").value) manque.push({ cell: "cell-dateRetour", label: "date de retour", focus: "#dateRetour" });
+        if (!$("heureRetour").value) manque.push({ cell: "cell-heureRetour", label: "heure de retour", focus: "#heureRetour" });
+        return manque;
+    }
+
+    function verifier() {
+        document.querySelectorAll(".invalid").forEach((e) => e.classList.remove("invalid"));
+        const manque = champsManquants();
+        if (manque.length) {
+            manque.forEach((m) => $(m.cell).classList.add("invalid"));
+            setMsg("À compléter : " + manque.map((m) => m.label).join(", ") + ".", "error");
+            const f = document.querySelector(manque[0].focus);
+            if (f) { f.focus(); if (f.scrollIntoView) f.scrollIntoView({ block: "center", behavior: "smooth" }); }
+            return false;
+        }
+        const r = calculer();
+        if (r.erreur) { setMsg(r.erreur, "error"); return false; }
+        return true;
+    }
+
+    /* =====================================================================
+       ACTIONS
+       ===================================================================== */
+    function texteResume() {
+        const typ = document.querySelector('input[name="type"]:checked').value;
+        const j = $("nbJours").value || "0", h = $("nbHeures").value || "0";
+        return [
+            "Demande d'absence A2CIM",
+            "Nom : " + $("nomInput").value.trim().toUpperCase() + " " + $("prenomInput").value.trim().toUpperCase(),
+            "Type : " + typ,
+            "Départ : " + frDate($("dateDepart").value) + " à " + $("heureDepart").value,
+            "Retour : " + frDate($("dateRetour").value) + " à " + $("heureRetour").value,
+            "Durée : " + j + " jour(s) et " + h + " heure(s)",
+            "Date de la demande : " + frDate($("dateDemande").value),
+            "Signé électroniquement le " + frDate(ymd(signature.date)) + " à " + pad(signature.date.getHours()) + ":" + pad(signature.date.getMinutes()) + " (Réf. " + signature.ref + ")"
+        ].join("\n");
+    }
+
+    $("btnPrint").addEventListener("click", function () {
+        if (!verifier()) return;
+        if (!signature) signer();
+        window.print();
+    });
+
+    $("btnShare").addEventListener("click", function () {
+        if (!verifier()) return;
+        if (!signature) signer();
+        const text = texteResume();
+        if (navigator.share) {
+            navigator.share({ title: "Demande d'absence A2CIM", text: text }).catch(function () { /* annulé */ });
+        } else {
+            window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+        }
+    });
+
+    $("btnSign").addEventListener("click", function () {
+        if (!verifier()) return;
+        signer();
+        setMsg("Demande signée électroniquement.", "info");
+    });
+
+    $("btnReset").addEventListener("click", function () {
+        document.querySelectorAll('input[name="type"]').forEach((r) => { r.checked = false; });
+        ["dateDepart", "heureDepart", "dateRetour", "heureRetour"].forEach((id) => { $(id).value = ""; });
+        $("dateRetour").removeAttribute("min");
+        retourManuel = false;
+        $("dateDemande").value = ymd(new Date());
+        document.querySelectorAll(".invalid").forEach((e) => e.classList.remove("invalid"));
+        maj();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    /* Titre du PDF = nom de fichier proposé à l'enregistrement */
+    let titreInitial = document.title;
+    window.addEventListener("beforeprint", function () {
+        syncPrint();
+        titreInitial = document.title;
+        const n = ($("nomInput").value.trim() + "_" + $("prenomInput").value.trim()).replace(/\s+/g, "_");
+        document.title = "Demande_absence_" + n + "_" + ($("dateDemande").value || ymd(new Date()));
+    });
+    window.addEventListener("afterprint", function () { document.title = titreInitial; });
+
+    /* =====================================================================
+       SAISIE ASSISTÉE
+       ===================================================================== */
+    let retourManuel = false;
+
+    $("dateDepart").addEventListener("change", function () {
+        const v = $("dateDepart").value;
+        if (!v) { maj(); return; }
+        if (!$("heureDepart").value) $("heureDepart").value = "08:00";
+        $("dateRetour").min = v;
+        if (!retourManuel) {
+            $("dateRetour").value = ymd(jourOuvreSuivant(parseYmd(v)));
+            $("heureRetour").value = "08:00";
+        }
+        maj();
+    });
+    ["dateRetour", "heureRetour"].forEach(function (id) {
+        $(id).addEventListener("change", function () { retourManuel = true; maj(); });
+    });
+    ["heureDepart", "dateDemande"].forEach(function (id) {
+        $(id).addEventListener("change", maj);
+    });
+
+    document.querySelectorAll('input[name="type"]').forEach(function (r) {
+        r.addEventListener("change", function () { $("cell-type").classList.remove("invalid"); invalider(); });
+    });
+
+    ["nomInput", "prenomInput"].forEach(function (id) {
+        $(id).addEventListener("input", function () {
+            $(id).closest(".cell").classList.remove("invalid");
+            invalider();
+            sauverIdentite();
+        });
+    });
+    ["dateDepart", "heureDepart", "dateRetour", "heureRetour"].forEach(function (id) {
+        $(id).addEventListener("input", function () { $(id).closest(".cell").classList.remove("invalid"); });
+    });
+
+    /* =====================================================================
+       INSTALLATION (Android / Chrome / Edge)
+       ===================================================================== */
+    let invitation = null;
+    window.addEventListener("beforeinstallprompt", function (e) {
+        e.preventDefault();
+        invitation = e;
+        $("btnInstall").hidden = false;
+    });
+    $("btnInstall").addEventListener("click", function () {
+        if (!invitation) return;
+        invitation.prompt();
+        invitation.userChoice.finally(function () {
+            invitation = null;
+            $("btnInstall").hidden = true;
+        });
+    });
+    window.addEventListener("appinstalled", function () { $("btnInstall").hidden = true; });
+
+    /* =====================================================================
+       DÉMARRAGE
+       ===================================================================== */
+    $("dateDemande").value = ymd(new Date());
+
+    try {
+        const id = JSON.parse(store.get("a2cim_abs_identite") || "null");
+        if (id) {
+            $("nomInput").value = id.nom || "";
+            $("prenomInput").value = id.prenom || "";
+        }
+    } catch (e) { /* ignoré */ }
+
+    majSignature();
+    maj();
+
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+            navigator.serviceWorker.register("sw.js").catch(function () { /* hors ligne non disponible */ });
+        });
+    }
+})();
 </script>
-
 </body>
 </html>
