@@ -1,11 +1,12 @@
 /* Service worker – Demande d'absence A2CIM
    Changer CACHE_VERSION à chaque modification de l'application
    pour forcer la mise à jour chez tous les utilisateurs. */
-const CACHE_VERSION = "a2cim-absence-v5";
+const CACHE_VERSION = "a2cim-absence-v6";
 const FICHIERS = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./feries.json",
   "./icon-192.png",
   "./icon-512.png",
   "./apple-touch-icon.png"
@@ -39,6 +40,20 @@ self.addEventListener("fetch", (event) => {
           return rep;
         })
         .catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
+  // Jours fériés : réseau d'abord pour recevoir les mises à jour, cache si hors ligne
+  if (new URL(req.url).pathname.endsWith("feries.json")) {
+    event.respondWith(
+      fetch(req)
+        .then((rep) => {
+          const copie = rep.clone();
+          caches.open(CACHE_VERSION).then((c) => c.put(req, copie));
+          return rep;
+        })
+        .catch(() => caches.match(req))
     );
     return;
   }

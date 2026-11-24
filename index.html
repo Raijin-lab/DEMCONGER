@@ -472,32 +472,16 @@ input[readonly] { background: var(--label-bg); font-weight: 700; }
     };
     const HEURES_PAR_JOUR = 8;  // 8 heures cumulées = 1 jour
 
-    // Jours fériés fixes (format "MM-JJ")
-    const FERIES_FIXES = [
-        "01-01", // Nouvel An
-        "01-11", // Manifeste de l'Indépendance
-        "01-14", // Nouvel An amazigh
-        "05-01", // Fête du Travail
-        "07-30", // Fête du Trône
-        "08-14", // Allégeance Oued Ed-Dahab
-        "08-20", // Révolution du Roi et du Peuple
-        "08-21", // Fête de la Jeunesse
-        "11-06", // Marche Verte
-        "11-18"  // Fête de l'Indépendance
-    ];
+    // Jours fériés : la source officielle est le fichier feries.json (même dossier que cette page).
+    // Les valeurs ci-dessous ne servent que de secours si ce fichier est introuvable
+    // et qu'aucune copie n'est encore enregistrée sur l'appareil.
+    const DEFAUT_FIXES = ["01-01", "01-11", "01-14", "05-01", "07-30", "08-14", "08-20", "08-21", "11-06", "11-18"];
+    const DEFAUT_MOBILES = ["2026-03-20", "2026-03-21", "2026-05-27", "2026-05-28", "2026-06-17", "2026-08-26"];
+    const DEFAUT_ANNEES = [2026];
 
-    // Jours fériés religieux (format "AAAA-MM-JJ") : dates fixées chaque année
-    // par le ministère des Habous selon la lune. À compléter dès l'annonce.
-    const FERIES_MOBILES = [
-        // 2026
-        "2026-03-20", "2026-03-21", // Aïd Al Fitr
-        "2026-05-27", "2026-05-28", // Aïd Al Adha
-        "2026-06-17",               // 1er Moharram
-        "2026-08-26"                // Aïd Al Mawlid
-        // 2027 : à ajouter quand les dates seront annoncées, puis ajouter 2027 ci-dessous
-    ];
-    // Années pour lesquelles la liste ci-dessus est complète
-    const ANNEES_MOBILES_OK = [2026];
+    let feriesFixes = DEFAUT_FIXES.slice();
+    let feriesMobiles = DEFAUT_MOBILES.slice();
+    let anneesOk = DEFAUT_ANNEES.slice();
 
     /* =====================================================================
        OUTILS
@@ -516,8 +500,8 @@ input[readonly] { background: var(--label-bg); font-weight: 700; }
     };
 
     function isFerie(d) {
-        return FERIES_FIXES.includes(pad(d.getMonth() + 1) + "-" + pad(d.getDate())) ||
-               FERIES_MOBILES.includes(ymd(d));
+        return feriesFixes.includes(pad(d.getMonth() + 1) + "-" + pad(d.getDate())) ||
+               feriesMobiles.includes(ymd(d));
     }
     function isOuvre(d) { return d.getDay() !== 0 && !isFerie(d); }
     function jourOuvreSuivant(d) {
@@ -572,7 +556,7 @@ input[readonly] { background: var(--label-bg); font-weight: 700; }
 
         const anneesNonConf = [];
         for (let y = start.getFullYear(); y <= end.getFullYear(); y++) {
-            if (!ANNEES_MOBILES_OK.includes(y)) anneesNonConf.push(y);
+            if (!anneesOk.includes(y)) anneesNonConf.push(y);
         }
         return { jours: jours, heures: heures, anneesNonConf: anneesNonConf };
     }
@@ -826,6 +810,50 @@ input[readonly] { background: var(--label-bg); font-weight: 700; }
     window.addEventListener("appinstalled", function () { $("btnInstall").hidden = true; });
 
     /* =====================================================================
+       JOURS FÉRIÉS : lecture de feries.json
+       ===================================================================== */
+    function dateDe(e) { return typeof e === "string" ? e : (e && e.date) || ""; }
+
+    // Valide et applique la configuration. Renvoie true si elle est utilisable.
+    function appliquerFeries(cfg) {
+        try {
+            if (!cfg || !Array.isArray(cfg.fixes) || typeof cfg.mobiles !== "object" || cfg.mobiles === null) return false;
+            const fixes = cfg.fixes.map(dateDe).filter((x) => /^\d{2}-\d{2}$/.test(x));
+            if (!fixes.length) return false;
+            const mobiles = [], annees = [];
+            Object.keys(cfg.mobiles).forEach(function (an) {
+                const liste = (Array.isArray(cfg.mobiles[an]) ? cfg.mobiles[an] : []).map(dateDe)
+                    .filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x));
+                if (liste.length) { annees.push(Number(an)); liste.forEach((x) => mobiles.push(x)); }
+            });
+            feriesFixes = fixes; feriesMobiles = mobiles; anneesOk = annees;
+            return true;
+        } catch (e) { return false; }
+    }
+
+    function chargerFeries() {
+        // 1) copie enregistrée lors de la dernière lecture réussie (fonctionne hors ligne)
+        try { const sauve = store.get("a2cim_abs_feries"); if (sauve) appliquerFeries(JSON.parse(sauve)); } catch (e) { /* ignoré */ }
+        // 2) version à jour sur le serveur
+        fetch("feries.json", { cache: "no-cache" })
+            .then(function (r) { if (!r.ok) throw new Error("introuvable"); return r.json(); })
+            .then(function (cfg) {
+                if (appliquerFeries(cfg)) {
+                    store.set("a2cim_abs_feries", JSON.stringify(cfg));
+                    // Recalcul : la signature n'est annulée que si le décompte a réellement changé
+                    const sigAvant = signature;
+                    const avant = $("nbJours").value + "|" + $("nbHeures").value;
+                    maj();
+                    if (sigAvant && avant === $("nbJours").value + "|" + $("nbHeures").value) {
+                        signature = sigAvant;
+                        majSignature();
+                    }
+                }
+            })
+            .catch(function () { /* on garde la copie enregistrée ou les valeurs de secours */ });
+    }
+
+    /* =====================================================================
        DÉMARRAGE
        ===================================================================== */
     $("dateDemande").value = ymd(new Date());
@@ -838,6 +866,7 @@ input[readonly] { background: var(--label-bg); font-weight: 700; }
         }
     } catch (e) { /* ignoré */ }
 
+    chargerFeries();
     majSignature();
     maj();
 
