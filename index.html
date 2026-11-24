@@ -290,35 +290,43 @@ input[readonly] { background: var(--label-bg); font-weight: 700; }
 }
 
 /* ---------- Impression / PDF ---------- */
-@page { size: A4; margin: 12mm; }
+@page { size: A4; margin: 0; }
 
 @media print {
-    body { background: #fff; padding: 0; font-size: 14px; }
-    .sheet { max-width: none; margin: 0; padding: 0; box-shadow: none; }
+    html, body { margin: 0; }
+    body { background: #fff; padding: 0; font-size: 15px; }
+    .sheet { max-width: none; margin: 0; padding: 16mm 15mm; box-shadow: none; }
     .noprint, .hint, dialog { display: none !important; }
     .msg { display: none; }
 
-    .head { grid-template-columns: minmax(200px, 34%) 1fr; }
-    .head h1 { font-size: 20px; }
+    .head { grid-template-columns: minmax(220px, 34%) 1fr; margin-bottom: 9mm; }
+    .brand { padding: 16px 18px; }
+    .head h1 { font-size: 22px; padding: 16px; }
+    .date-demande { margin-bottom: 7mm; font-size: 15px; }
     .brand { border-right: 2px solid var(--line); border-bottom: 0; }
 
     .date-demande input[type="date"] { display: none; }
     input[type="date"], input[type="time"] { display: none !important; }
-    .pv { display: block; min-height: 24px; }
+    .pv { display: block; min-height: 26px; font-size: 16px; }
 
     input[type="text"] {
-        border: 0; padding: 4px 0; min-height: 28px; background: none;
-        box-shadow: none; font-size: 15px; font-weight: 600;
+        border: 0; padding: 4px 0; min-height: 30px; background: none;
+        box-shadow: none; font-size: 16px; font-weight: 600;
     }
     input[readonly] { background: none; }
 
+    .cell { padding: 14px 16px; }
+    .cell > label, .cell .cap { font-size: 13px; margin-bottom: 8px; }
     .cell.name { grid-column: auto; }
-    .types { flex-direction: row; gap: 26px; }
+    .types { flex-direction: row; gap: 32px; }
+    .opt { font-size: 16px; }
     .opt, .opt:has(input:checked) {
         border: 0; background: none; padding: 0; min-height: 0; width: auto;
     }
     .opt input { display: none; }
-    .sig .sig-b { height: 120px; }
+    .sig { margin-top: 12mm; }
+    .sig .sig-h { padding: 10px 12px; font-size: 12px; }
+    .sig .sig-b { height: 150px; }
     .esign-name { font-size: 28px; }
 
     .brand, .cell > label, .cell > legend, .cell .cap, .sig .sig-h {
