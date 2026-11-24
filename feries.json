@@ -1,0 +1,25 @@
+{
+  "aide": "Fichier des jours fériés. Pour ajouter une année : ajouter une entrée dans \"mobiles\" (ex. \"2027\": [ {\"date\": \"2027-03-10\", \"nom\": \"Aïd Al Fitr\"} ]). Format des dates : AAAA-MM-JJ. Une fête de 2 jours = 2 lignes. Une année absente ou vide déclenche un avertissement dans l'application.",
+  "fixes": [
+    { "date": "01-01", "nom": "Nouvel An" },
+    { "date": "01-11", "nom": "Manifeste de l'Indépendance" },
+    { "date": "01-14", "nom": "Nouvel An amazigh" },
+    { "date": "05-01", "nom": "Fête du Travail" },
+    { "date": "07-30", "nom": "Fête du Trône" },
+    { "date": "08-14", "nom": "Allégeance Oued Ed-Dahab" },
+    { "date": "08-20", "nom": "Révolution du Roi et du Peuple" },
+    { "date": "08-21", "nom": "Fête de la Jeunesse" },
+    { "date": "11-06", "nom": "Marche Verte" },
+    { "date": "11-18", "nom": "Fête de l'Indépendance" }
+  ],
+  "mobiles": {
+    "2026": [
+      { "date": "2026-03-20", "nom": "Aïd Al Fitr" },
+      { "date": "2026-03-21", "nom": "Aïd Al Fitr" },
+      { "date": "2026-05-27", "nom": "Aïd Al Adha" },
+      { "date": "2026-05-28", "nom": "Aïd Al Adha" },
+      { "date": "2026-06-17", "nom": "1er Moharram" },
+      { "date": "2026-08-26", "nom": "Aïd Al Mawlid" }
+    ]
+  }
+}
